@@ -1,0 +1,1509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz Quest</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --green:#58CC02; --green-d:#58A700; --green-l:#D7FFB8; --green-b:#A5ED6E; --lime:#89E219;
+  --blue:#1CB0F6; --blue-d:#1899D6; --blue-l:#DDF4FF; --blue-b:#84D8FF;
+  --red:#FF4B4B; --red-d:#EA2B2B; --red-l:#FFDFE0; --red-b:#FFB2B2;
+  --gold:#FFC800; --gold-d:#E5A500; --orange:#FF9600; --orange-d:#CD7900;
+  --purple:#CE82FF; --purple-d:#A568CC;
+  --ink:#4B4B4B; --muted:#777777; --faint:#AFAFAF; --line:#E5E5E5; --snow:#F7F7F7;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{font-family:'Nunito',system-ui,sans-serif;color:var(--ink);background:#fff;font-weight:700;overflow-x:hidden}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+.hidden{display:none!important}
+
+/* ---------- Buttons ---------- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:50px;padding:0 24px;border-radius:16px;
+  font-weight:800;font-size:15px;letter-spacing:.8px;text-transform:uppercase;color:#fff;background:var(--green);
+  box-shadow:0 4px 0 var(--green-d);transition:filter .1s,transform .05s,box-shadow .05s;user-select:none}
+.btn:hover{filter:brightness(1.06)}
+.btn:active{transform:translateY(4px);box-shadow:0 0 0 var(--green-d)}
+.btn.blue{background:var(--blue);box-shadow:0 4px 0 var(--blue-d)}
+.btn.red{background:var(--red);box-shadow:0 4px 0 var(--red-d)}
+.btn.gold{background:var(--gold);box-shadow:0 4px 0 var(--gold-d)}
+.btn.ghost{background:#fff;color:var(--blue);border:2px solid var(--line);box-shadow:0 4px 0 var(--line)}
+.btn.ghost.gray{color:var(--muted)}
+.btn:disabled{background:var(--line);color:var(--faint);box-shadow:none;cursor:default;filter:none;transform:none}
+.btn.wide{width:100%}
+
+/* ---------- Top bar ---------- */
+.topbar{position:sticky;top:0;z-index:20;background:#fff;border-bottom:2px solid var(--line)}
+.topbar-in{max-width:620px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:10px 16px}
+.course-chip{display:flex;align-items:center;gap:8px;font-weight:900;color:var(--ink);font-size:15px}
+.course-chip .flag{width:34px;height:26px;border-radius:7px;background:linear-gradient(135deg,var(--purple),var(--blue));display:grid;place-items:center;color:#fff;font-size:11px;font-weight:900;box-shadow:0 3px 0 var(--purple-d)}
+.stats{display:flex;align-items:center;gap:14px}
+.stat{display:flex;align-items:center;gap:5px;font-weight:800;font-size:16px}
+.stat svg{width:24px;height:24px}
+.stat.fire{color:var(--orange)} .stat.gem{color:var(--blue)} .stat.heart{color:var(--red)}
+.icon-btn{width:36px;height:36px;border-radius:12px;display:grid;place-items:center;color:var(--faint)}
+.icon-btn:hover{background:var(--snow)}
+.icon-btn svg{width:22px;height:22px}
+
+/* ---------- Home ---------- */
+#home{max-width:620px;margin:0 auto;padding:18px 16px 120px}
+.hero{border:2px solid var(--line);border-radius:20px;padding:18px;display:flex;gap:16px;align-items:center;margin-bottom:22px}
+.hero .mascot-wrap{width:84px;flex:0 0 84px}
+.hero h1{font-size:20px;font-weight:900;line-height:1.2}
+.hero p{color:var(--muted);font-size:14px;margin-top:4px;font-weight:700}
+.hero .row{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap}
+.pill{display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border-radius:999px;font-size:12px;font-weight:900;letter-spacing:.4px;text-transform:uppercase}
+.pill.gold{background:#FFF4CC;color:#B07D00}
+.pill.red{background:var(--red-l);color:var(--red-d)}
+.pill.green{background:var(--green-l);color:var(--green-d)}
+.pill.blue{background:var(--blue-l);color:var(--blue-d)}
+
+.unit{margin-bottom:26px}
+.unit-banner{border-radius:16px;padding:16px 18px;color:#fff;display:flex;justify-content:space-between;align-items:center;gap:12px}
+.unit-banner .u-label{font-size:13px;font-weight:900;opacity:.85;letter-spacing:.6px;text-transform:uppercase}
+.unit-banner .u-title{font-size:20px;font-weight:900;line-height:1.2;margin-top:2px}
+.guide-btn{flex:0 0 auto;display:flex;align-items:center;gap:6px;padding:10px 14px;border-radius:14px;border:2px solid rgba(0,0,0,.15);
+  box-shadow:0 3px 0 rgba(0,0,0,.18);color:#fff;font-weight:900;font-size:13px;letter-spacing:.5px;text-transform:uppercase;background:rgba(255,255,255,.08)}
+.guide-btn:active{transform:translateY(3px);box-shadow:none}
+.guide-btn svg{width:20px;height:20px}
+
+.path{position:relative;display:flex;flex-direction:column;align-items:center;padding:28px 0 6px;gap:22px}
+.node-wrap{position:relative;display:flex;flex-direction:column;align-items:center;z-index:1}
+.node-wrap.open{z-index:15}
+.node{width:76px;height:70px;border-radius:50%;display:grid;place-items:center;position:relative;transition:transform .05s}
+.node svg{width:36px;height:36px}
+.node:active{transform:translateY(6px)}
+.node.done{background:var(--gold)!important;box-shadow:0 7px 0 var(--gold-d)!important}
+.node .ring{position:absolute;inset:-9px;border-radius:50%;border:6px solid var(--line)}
+.node.done .ring{border-color:#FFE27A}
+.node-label{margin-top:12px;font-size:13px;font-weight:800;color:var(--muted);text-align:center;max-width:150px;line-height:1.2}
+.start-bubble{position:absolute;top:-46px;background:#fff;border:2px solid var(--line);border-radius:12px;padding:6px 12px;font-weight:900;font-size:14px;letter-spacing:.6px;
+  text-transform:uppercase;animation:bob 1.2s ease-in-out infinite;white-space:nowrap;z-index:2}
+.start-bubble::after{content:"";position:absolute;bottom:-8px;left:50%;transform:translateX(-50%) rotate(45deg);width:12px;height:12px;background:#fff;border-right:2px solid var(--line);border-bottom:2px solid var(--line)}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+.popover{position:absolute;top:calc(100% + 10px);z-index:15;width:270px;border-radius:16px;padding:16px;color:#fff;animation:pop .15s ease-out}
+.popover::before{content:"";position:absolute;top:-8px;left:50%;transform:translateX(-50%) rotate(45deg);width:16px;height:16px;background:inherit}
+.popover h3{font-size:17px;font-weight:900;margin-bottom:4px}
+.popover p{font-size:14px;font-weight:700;opacity:.9;margin-bottom:12px}
+.popover .btn{width:100%;background:#fff;color:inherit;box-shadow:0 4px 0 rgba(0,0,0,.18)}
+@keyframes pop{from{transform:scale(.9);opacity:0}to{transform:scale(1);opacity:1}}
+
+.boss{margin-top:8px;border:2px solid var(--line);border-radius:20px;padding:18px;display:flex;align-items:center;gap:16px}
+.boss .trophy{width:64px;height:64px;flex:0 0 64px;border-radius:18px;background:var(--gold);box-shadow:0 5px 0 var(--gold-d);display:grid;place-items:center}
+.boss .trophy svg{width:36px;height:36px}
+.boss h3{font-size:18px;font-weight:900}
+.boss p{font-size:14px;color:var(--muted);margin:2px 0 10px}
+
+.fab-mistakes{position:fixed;left:50%;transform:translateX(-50%);bottom:18px;z-index:25;max-width:588px;width:calc(100% - 32px)}
+
+/* ---------- Lesson ---------- */
+#lesson{position:fixed;inset:0;background:#fff;z-index:40;display:flex;flex-direction:column}
+.l-head{max-width:1000px;width:100%;margin:0 auto;display:flex;align-items:center;gap:16px;padding:20px 16px 10px}
+.l-head .x{color:var(--faint);width:32px;height:32px;display:grid;place-items:center;border-radius:8px}
+.l-head .x:hover{background:var(--snow)}
+.l-head .x svg{width:22px;height:22px}
+.bar{flex:1;height:16px;background:var(--line);border-radius:99px;overflow:hidden;position:relative}
+.bar-fill{height:100%;background:var(--green);border-radius:99px;transition:width .4s cubic-bezier(.3,1.4,.6,1);position:relative;min-width:16px}
+.bar-fill::after{content:"";position:absolute;left:8px;right:8px;top:4px;height:4px;border-radius:99px;background:rgba(255,255,255,.3)}
+.l-hearts{display:flex;align-items:center;gap:5px;color:var(--red);font-weight:900;font-size:17px}
+.l-hearts svg{width:26px;height:26px}
+.l-hearts.inf{color:var(--blue)}
+.l-body{flex:1;overflow-y:auto;padding:12px 16px 24px}
+.l-inner{max-width:600px;margin:0 auto}
+.combo{height:24px;color:var(--orange);font-weight:900;font-size:14px;letter-spacing:.8px;text-transform:uppercase;display:flex;align-items:center;gap:6px;margin-bottom:6px}
+.combo svg{width:20px;height:20px}
+.combo.pop{animation:pop .25s ease-out}
+.q-tag{display:flex;gap:8px;align-items:center;margin-bottom:10px;flex-wrap:wrap}
+.q-type{font-size:13px;font-weight:900;color:var(--purple-d);letter-spacing:.6px;text-transform:uppercase}
+.q-title{font-size:24px;font-weight:900;line-height:1.25;margin-bottom:18px}
+.speaker{display:flex;align-items:flex-end;gap:12px;margin-bottom:22px}
+.speaker .mascot-wrap{width:92px;flex:0 0 92px}
+.bubble{position:relative;border:2px solid var(--line);border-radius:16px;padding:14px 16px;font-size:17px;line-height:1.45;font-weight:700;color:var(--ink);margin-bottom:22px}
+.bubble::before{content:"";position:absolute;left:-9px;bottom:18px;width:14px;height:14px;background:#fff;border-left:2px solid var(--line);border-bottom:2px solid var(--line);transform:rotate(45deg)}
+
+.choices{display:flex;flex-direction:column;gap:10px}
+.choice{display:flex;align-items:center;gap:14px;text-align:left;border:2px solid var(--line);border-bottom-width:4px;border-radius:14px;padding:13px 16px;font-size:16px;font-weight:700;line-height:1.35;background:#fff;transition:background .1s}
+.choice:hover:not(:disabled){background:var(--snow)}
+.choice:active:not(:disabled){transform:translateY(2px);border-bottom-width:2px;margin-bottom:2px}
+.choice .key{flex:0 0 30px;height:30px;border:2px solid var(--line);border-radius:8px;display:grid;place-items:center;font-size:14px;font-weight:800;color:var(--faint)}
+.choice.multi .key{border-radius:8px}
+.choice.sel{background:var(--blue-l);border-color:var(--blue-b);color:var(--blue-d)}
+.choice.sel .key{border-color:var(--blue-b);color:var(--blue-d)}
+.choice.right{background:var(--green-l);border-color:var(--green-b);color:var(--green-d)}
+.choice.right .key{border-color:var(--green-b);color:var(--green-d)}
+.choice.wrong{background:var(--red-l);border-color:var(--red-b);color:var(--red-d)}
+.choice.wrong .key{border-color:var(--red-b);color:var(--red-d)}
+.choice.shake{animation:shake .35s}
+.choice:disabled{cursor:default}
+@keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
+
+.sum{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;line-height:.9;margin:0 2px;font-size:1.25em}
+.sum .lim{font-size:.5em;font-weight:800}
+.fx{font-family:'Cambria Math','Times New Roman',serif;font-style:italic;font-weight:600;font-size:18px}
+.fx sub,.fx sup{font-size:.65em}
+
+/* match */
+.match{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.match .col{display:flex;flex-direction:column;gap:10px}
+.tile{min-height:64px;border:2px solid var(--line);border-bottom-width:4px;border-radius:14px;padding:10px 12px;font-size:15px;font-weight:800;text-align:center;background:#fff;line-height:1.25;display:flex;align-items:center;justify-content:center}
+.tile:hover:not(:disabled){background:var(--snow)}
+.tile.sel{background:var(--blue-l);border-color:var(--blue-b);color:var(--blue-d)}
+.tile.ok{background:var(--green-l);border-color:var(--green-b);color:var(--green-d)}
+.tile.bad{background:var(--red-l);border-color:var(--red-b);color:var(--red-d);animation:shake .35s}
+.tile.gone{background:#fff;border-color:var(--line);color:#D6D6D6;cursor:default}
+.tile.term{font-weight:900;font-size:16px}
+
+/* learn card */
+.learn{border:2px solid var(--line);border-bottom-width:4px;border-radius:18px;padding:18px;margin-bottom:8px}
+.learn h2{font-size:22px;font-weight:900;margin-bottom:8px;line-height:1.25}
+.learn .body{font-size:16px;line-height:1.55;font-weight:700}
+.learn .body b{color:var(--blue-d)}
+.learn .body ul,.learn .body ol{margin:8px 0 0 22px}
+.learn .ex{margin-top:12px;background:var(--blue-l);border-radius:12px;padding:12px 14px;font-size:15px;line-height:1.45;color:var(--blue-d)}
+.learn .ex::before{content:"Example";display:block;font-size:12px;font-weight:900;letter-spacing:.6px;text-transform:uppercase;margin-bottom:4px}
+
+/* footer */
+.l-foot{border-top:2px solid var(--line);background:#fff;transition:background .15s}
+.l-foot.ok{background:var(--green-l);border-color:transparent}
+.l-foot.no{background:var(--red-l);border-color:transparent}
+.foot-in{max-width:1000px;margin:0 auto;padding:18px 16px 22px;display:flex;align-items:center;gap:16px;justify-content:space-between}
+.fb{display:flex;gap:14px;align-items:flex-start;flex:1;min-width:0;max-height:42vh;overflow-y:auto}
+.fb-icon{flex:0 0 64px;height:64px;border-radius:50%;background:#fff;display:grid;place-items:center}
+.fb-icon svg{width:34px;height:34px}
+.fb h3{font-size:22px;font-weight:900}
+.l-foot.ok .fb h3{color:var(--green-d)} .l-foot.no .fb h3{color:var(--red-d)}
+.fb .ans{font-size:15px;font-weight:800;margin-top:4px}
+.l-foot.ok .fb .ans{color:var(--green-d)} .l-foot.no .fb .ans{color:var(--red-d)}
+.fb .why{font-size:15px;font-weight:700;line-height:1.45;margin-top:6px}
+.l-foot.ok .fb .why{color:#3E7D00} .l-foot.no .fb .why{color:#B3261E}
+.foot-in .btn{min-width:160px}
+.l-foot.no .btn{background:var(--red);box-shadow:0 4px 0 var(--red-d)}
+@media (max-width:640px){
+  .foot-in{flex-direction:column;align-items:stretch}
+  .foot-in .btn{width:100%}
+  .fb-icon{display:none}
+  .q-title{font-size:21px}
+  .bubble{font-size:16px}
+  .speaker .mascot-wrap{width:70px;flex-basis:70px}
+}
+
+/* ---------- Overlays ---------- */
+.screen{position:fixed;inset:0;background:#fff;z-index:60;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center;overflow:hidden}
+.screen .mascot-wrap{width:150px;margin-bottom:12px}
+.screen h2{font-size:30px;font-weight:900;color:var(--gold-d);margin-bottom:6px}
+.screen h2.red{color:var(--red)}
+.screen .sub{color:var(--muted);font-size:17px;margin-bottom:24px;max-width:420px}
+.cards{display:flex;gap:12px;margin-bottom:30px;flex-wrap:wrap;justify-content:center}
+.scard{width:130px;border-radius:16px;border:2px solid;overflow:hidden}
+.scard .t{font-size:12px;font-weight:900;color:#fff;padding:5px 0;letter-spacing:.6px;text-transform:uppercase}
+.scard .v{background:#fff;margin:0 2px 2px;border-radius:0 0 13px 13px;padding:12px 0;font-size:22px;font-weight:900;display:flex;align-items:center;justify-content:center;gap:6px}
+.scard .v svg{width:22px;height:22px}
+.scard.gold{border-color:var(--gold);background:var(--gold)} .scard.gold .v{color:var(--gold-d)}
+.scard.green{border-color:var(--green);background:var(--green)} .scard.green .v{color:var(--green-d)}
+.scard.blue{border-color:var(--blue);background:var(--blue)} .scard.blue .v{color:var(--blue-d)}
+.scard.orange{border-color:var(--orange);background:var(--orange)} .scard.orange .v{color:var(--orange)}
+.screen .actions{display:flex;flex-direction:column;gap:12px;width:100%;max-width:340px}
+.review-list{max-width:520px;width:100%;text-align:left;margin:-10px 0 24px;max-height:30vh;overflow-y:auto;border:2px solid var(--line);border-radius:16px;padding:12px 14px}
+.review-list .ri{padding:8px 0;border-bottom:2px solid var(--snow);font-size:14px;line-height:1.35}
+.review-list .ri:last-child{border:none}
+.review-list .ri b{color:var(--red-d)}
+.review-list .ri span{color:var(--green-d)}
+
+.confetti{position:absolute;top:-20px;width:10px;height:16px;border-radius:3px;animation:fall linear forwards;pointer-events:none}
+@keyframes fall{to{transform:translateY(110vh) rotate(720deg)}}
+
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:80;display:flex;align-items:flex-end;justify-content:center;animation:fade .15s}
+@media (min-width:700px){.modal-bg{align-items:center}}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+.modal{background:#fff;width:100%;max-width:560px;border-radius:22px 22px 0 0;padding:22px 20px 26px;max-height:86vh;overflow-y:auto;animation:up .2s ease-out}
+@media (min-width:700px){.modal{border-radius:22px}}
+@keyframes up{from{transform:translateY(40px)}to{transform:translateY(0)}}
+.modal h2{font-size:22px;font-weight:900;margin-bottom:4px}
+.modal .msub{color:var(--muted);font-size:14px;margin-bottom:16px}
+.gb-item{display:flex;gap:12px;padding:12px 0;border-bottom:2px solid var(--snow);align-items:flex-start}
+.gb-item:last-of-type{border:none}
+.gb-term{flex:0 0 120px;font-weight:900;font-size:15px}
+.gb-def{font-size:15px;color:var(--ink);font-weight:700;line-height:1.4}
+.tip{margin-top:12px;background:#FFF4CC;border-radius:14px;padding:12px 14px;font-size:14px;color:#8A6300;line-height:1.45}
+.tip b{color:#6B4C00}
+.modal .btn{margin-top:18px}
+
+/* page refs + coverage */
+.pill.purple{background:#F3E5FF;color:#8B4FB8}
+.pill-btn{cursor:pointer;border:none;font-family:inherit}
+.pill-btn:active{transform:translateY(2px)}
+.pgref{display:inline-block;margin-top:8px;font-size:13px;font-weight:900;padding:4px 10px;border-radius:999px;background:rgba(255,255,255,.75)}
+.cov-sum{background:var(--green-l);color:var(--green-d);border-radius:14px;padding:12px 14px;font-size:14px;font-weight:800;line-height:1.4}
+.cov-item{border:2px solid var(--line);border-radius:16px;padding:12px 14px;margin-top:10px}
+.cov-head{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.cov-pg{font-weight:900;font-size:16px;display:flex;align-items:center;gap:8px}
+.cov-pg .ok{width:22px;height:22px;border-radius:50%;background:var(--green);display:grid;place-items:center;flex:0 0 22px}
+.cov-pg .ok svg{width:14px;height:14px}
+.cov-pg .bad{width:22px;height:22px;border-radius:50%;background:var(--red);flex:0 0 22px}
+.cov-cnt{font-size:12px;font-weight:900;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;text-align:right}
+.cov-topics{font-size:14px;color:var(--ink);margin-top:6px;line-height:1.4;font-weight:700}
+.cov-lessons{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.cov-lessons span{font-size:12px;font-weight:800;padding:3px 8px;border-radius:8px;background:var(--snow);color:var(--muted)}
+.cov-go{margin-top:10px;height:40px;font-size:13px;width:100%}
+.boss .brow{display:flex;gap:10px;flex-wrap:wrap}
+.tr-label{font-size:14px;font-weight:900;margin:16px 0 8px}
+.code-box{width:100%;min-height:84px;border:2px solid var(--line);border-radius:14px;padding:10px 12px;font:700 13px/1.4 ui-monospace,Menlo,Consolas,monospace;color:var(--ink);background:var(--snow);resize:vertical;word-break:break-all}
+.code-box:focus{outline:none;border-color:var(--blue-b);background:#fff}
+.tr-row{display:flex;gap:10px;margin-top:10px}.tr-row .btn{flex:1}
+.tr-msg{min-height:20px;margin-top:10px;font-size:14px;font-weight:800;line-height:1.4}
+.tr-msg.ok{color:var(--green-d)}.tr-msg.err{color:var(--red-d)}
+.tr-confirm{margin-top:12px;border:2px solid var(--gold);background:#FFF4CC;border-radius:16px;padding:14px;font-size:14px;line-height:1.5;color:#6B4C00}
+.tr-confirm b{color:#4B3500}
+
+/* mascot moods */
+.mascot .m-happy,.mascot .m-sad{display:none}
+.mascot.happy .m-norm,.mascot.sad .m-norm{display:none}
+.mascot.happy .m-happy{display:block}
+.mascot.sad .m-sad{display:block}
+.mascot.happy{animation:hop .45s ease-out}
+.mascot.sad{animation:shake .4s}
+@keyframes hop{0%,100%{transform:translateY(0)}40%{transform:translateY(-12px)}}
+.mascot.idle{animation:breathe 2.6s ease-in-out infinite}
+@keyframes breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.03,0.98)}}
+</style>
+</head>
+<body>
+
+<!-- ============ HOME ============ -->
+<header class="topbar" id="topbar">
+  <div class="topbar-in">
+    <div class="course-chip"><div class="flag" id="cTag"></div><span id="cMod"></span></div>
+    <div class="stats">
+      <div class="stat fire" title="Day streak"><svg viewBox="0 0 24 24"><path fill="#FF9600" d="M12 2c1 3.5 5.5 5.6 5.5 11a5.5 5.5 0 0 1-11 0c0-2.4 1-4 2.2-5.2.2 1.6.9 2.7 2 3.2C10 8.4 10.6 4.6 12 2z"/><path fill="#FFC800" d="M12 12.5c.6 1.6 2.5 2.4 2.5 4.6a2.5 2.5 0 0 1-5 0c0-1.5.9-2.4 1.5-3 .2.7.5 1.1 1 1.2 0-1-.2-1.9 0-2.8z"/></svg><span id="sStreak">0</span></div>
+      <div class="stat gem" title="Total XP"><svg viewBox="0 0 24 24"><path fill="#1CB0F6" d="M6 3h12l4 6-10 12L2 9z"/><path fill="#84D8FF" d="M6 3h12l-3 6H9z"/><path fill="#1899D6" d="M2 9h7l3 12z"/></svg><span id="sXP">0</span></div>
+      <div class="stat heart" title="Hearts per lesson"><svg viewBox="0 0 24 24"><path fill="#FF4B4B" d="M12 21s-8.5-5.3-8.5-11.2A4.8 4.8 0 0 1 12 6.6a4.8 4.8 0 0 1 8.5 3.2C20.5 15.7 12 21 12 21z"/><ellipse cx="8" cy="9" rx="1.8" ry="1.2" fill="#fff" opacity=".6"/></svg><span>5</span></div>
+      <button class="icon-btn" id="soundBtn" title="Sound on/off"></button>
+    </div>
+  </div>
+</header>
+
+<main id="home">
+  <section class="hero">
+    <div class="mascot-wrap" data-mascot="idle"></div>
+    <div>
+      <h1 id="hTitle"></h1>
+      <p id="hBlurb"></p>
+      <div class="row">
+        <span class="pill gold" id="hScore"></span>
+        <span class="pill blue" id="lessonsDone">0/9 lessons</span>
+        <button class="pill green pill-btn" id="covBtn">Page coverage</button>
+        <button class="pill blue pill-btn" id="trBtn">⇄ Transfer progress</button>
+      </div>
+    </div>
+  </section>
+  <div id="units"></div>
+  <section class="boss">
+    <div class="trophy"><svg viewBox="0 0 24 24"><path fill="#fff" d="M7 3h10v2h3v3a4 4 0 0 1-4 4h-.3A5 5 0 0 1 13 14.9V17h3v4H8v-4h3v-2.1A5 5 0 0 1 8.3 12H8a4 4 0 0 1-4-4V5h3zm-1 4v1a2 2 0 0 0 1 1.7V7zm11 0v2.7a2 2 0 0 0 1-1.7V7z"/></svg></div>
+    <div style="flex:1">
+      <h3 id="bossTitle"></h3>
+      <p id="bossSub"></p>
+      <div class="brow"><button class="btn gold" id="bossBtn">Full fight</button><button class="btn ghost" id="quickBtn">Quick 30</button></div>
+    </div>
+  </section>
+</main>
+
+<div class="fab-mistakes hidden" id="fab"><button class="btn red wide" id="fabBtn"></button></div>
+
+<!-- ============ LESSON ============ -->
+<section id="lesson" class="hidden">
+  <div class="l-head">
+    <button class="x" id="quitBtn" title="Quit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M5 5l14 14M19 5L5 19"/></svg></button>
+    <div class="bar"><div class="bar-fill" id="barFill" style="width:0%"></div></div>
+    <div class="l-hearts" id="lHearts"></div>
+  </div>
+  <div class="l-body"><div class="l-inner" id="qArea"></div></div>
+  <div class="l-foot" id="foot">
+    <div class="foot-in">
+      <div class="fb" id="fb"></div>
+      <button class="btn" id="mainBtn" disabled>Check</button>
+    </div>
+  </div>
+</section>
+
+<div id="overlay"></div>
+
+<script>
+/* ============================================================
+   CONFIG + CONTENT  (the only part you edit per reviewer)
+   ============================================================ */
+const CONFIG = {
+  pageTitle: "CHRA Quest: PH Labor Law",
+  courseTag: "CHRA",
+  moduleLabel: "Labor Law Reviewer",
+  title: "PH Labor Law & HR Essentials",
+  blurb: "All 26 pages + the cheat sheet, taught then quizzed. Every card shows the page it came from.",
+  realScore: null, realTotal: null,
+  bossTitle: "Final Boss: Full Review",
+  srcPill: "",
+  bossNoun: "review questions",
+  storageKey: "quizquest_chra_laborlaw_v1"
+};
+
+const SJ = '<span class="sum"><span class="lim">m</span>Σ<span class="lim">j=1</span></span>';
+const SI = '<span class="sum"><span class="lim">n</span>Σ<span class="lim">i=1</span></span>';
+const fx = s => `<span class="fx">${s}</span>`;
+
+/* What each page of the notes covers (for the Page Coverage map) */
+const PAGE_INFO = {
+ 1:"DOLE, NWPC, RTWPB roles; labor relations; unionization and its purpose; certification election",
+ 2:"Certification election; qualified / unqualified / optional voters; bargaining unit",
+ 3:"Grievance & dispute handling; labor laws compliance; CBA; union status",
+ 4:"Contracting union; CBA posting rule; labor union; memory tips; bargaining agent; Art. 6 intro",
+ 5:"Not covered by Labor Code (gov't, GOCCs, int'l orgs, water districts, corporate officers); public employment; recruitment agencies",
+ 6:"Manning agency; PESO; conditions of employment; normal hours; meal periods",
+ 7:"Meal break table; night shift differential; overtime rates",
+ 8:"Field personnel; no work no pay; managerial employees; weekly rest day; holiday pay intro",
+ 9:"Holiday pay rates & conditions; who doesn't get it; Service Incentive Leave; minimum wage",
+ 10:"Minimum wage per region; payment of wages; retirement pay table; retirement exemptions; 22.5-day computation",
+ 11:"22.5 days formula; CBA retirement; paid-by-results, part-time, miners, jockeys; security of tenure; 13th month",
+ 12:"13th month exemptions; separation pay table; maternity benefit requirements",
+ 13:"Maternity leave (RA 11210); paternity leave (RA 8187); Magna Carta of Women (RA 9710)",
+ 14:"Magna Carta special leave; Kasambahay Law (RA 10361) rights and prohibitions",
+ 15:"Termination causes; kasambahay resignation; types of employment; job vs labor-only contracting; four-fold test",
+ 16:"Independent contractor & economic dependency tests; yellow dog contract; holiday pay list",
+ 17:"Holiday pay exclusions, conditions & rates; special non-working days; SSS",
+ 18:"PhilHealth; Pag-IBIG; solo parent leave; service charges",
+ 19:"Job contracting vs labor-only contracting; legitimate contractor; risk management",
+ 20:"Importance of risk management; types of HR risks; I-A-C-M process",
+ 21:"Monitor step; real-life risk example; PRA vs PEA and who pays",
+ 22:"PRA vs PEA table; regular holiday pay computations; special holiday rule",
+ 23:"Special holiday computations; serious misconduct; conditions for payment of wages",
+ 24:"Compressed work week; Labor Arbiter and its jurisdiction",
+ 25:"More LA jurisdiction; cases not handled; appeal path; due process; bystander rule; grievance machinery; NCMB",
+ 26:"NCMB; cascading goals",
+ CS:"Cheat sheet: RA 6727, holiday pay, premium pay, OT, NSD, service charges, SIL, solo parent leave, VAWC leave"
+};
+
+const ITEMS = {
+/* ================= UNIT 1: WHO'S WHO ================= */
+l1:{type:'learn',pg:[1],title:"DOLE & NWPC",say:"New unit! Meet the big agencies first.",
+ body:"<b>DOLE</b> (Department of Labor and Employment) is the main government agency for labor and employment. It <b>implements the Labor Code</b>, enforces labor laws (minimum wage, benefits, working conditions), and handles <b>disputes and inspections</b>. Think: the <b>boss</b>.<br><br><b>NWPC</b> (National Wages and Productivity Commission) is an agency <b>under DOLE</b>. It sets <b>national wage policies</b>, oversees the regional wage boards, and promotes productivity. Think: the <b>policy-maker</b>."},
+l2:{type:'learn',pg:[1,9,10],title:"RTWPB: The Implementer",
+ body:"<b>RTWPBs</b> (Regional Tripartite Wages and Productivity Boards) are regional bodies, <b>one per region</b>. They <b>actually set the minimum wage</b> in each region, <b>issue Wage Orders</b>, and conduct hearings and consultations. Think: the <b>implementer</b>.<br><br>Minimum wage differs per region (and agricultural vs non-agricultural) because <b>cost of living</b> and economic conditions differ.",
+ ex:"NCR wage ≠ provincial wage."},
+q1:{type:'single',pg:[1],prompt:"Which agency is the 'boss' of labor matters: implements the Labor Code, enforces labor laws, and handles inspections?",
+ choices:["DOLE","NWPC","RTWPB","NCMB"],ans:[0],why:"DOLE is the main labor agency. NWPC and RTWPB focus on wages, NCMB on mediation."},
+q2:{type:'single',pg:[1],prompt:"Which body sets national wage policies and oversees the regional wage boards?",
+ choices:["NWPC","DOLE Regional Office","RTWPB","PESO"],ans:[0],why:"NWPC = the policy-maker (big picture on wages). It's under DOLE and oversees the RTWPBs."},
+q3:{type:'single',pg:[1,9],prompt:"Who ACTUALLY sets the minimum wage in each region?",
+ choices:["RTWPB","NWPC","The DOLE Secretary","Congress"],ans:[0],why:"RTWPBs set regional minimum wages. NWPC only sets national policy. Key phrase: 'implementer'."},
+q4:{type:'single',pg:[1],prompt:"What does an RTWPB issue?",
+ choices:["Wage Orders","Collective Bargaining Agreements","Certificates of union registration","Notices to explain"],ans:[0],why:"RTWPBs issue Wage Orders, which prescribe the daily minimum wage in the region."},
+q5:{type:'single',pg:[10],prompt:"Why is the minimum wage different per region?",
+ choices:["Cost of living and economic conditions vary","Each region has its own Labor Code","NCR employers lobby harder","DOLE assigns rates randomly"],ans:[0],why:"Different cost of living and economic conditions, so NCR wage ≠ provincial wage."},
+
+l3:{type:'learn',pg:[4,5],title:"Not Covered by the Labor Code (Art. 6)",
+ body:"Some workers fall <b>outside</b> the Labor Code:<ol><li><b>Government employees</b>: covered by the <b>Civil Service Law</b>.</li><li><b>Employees of international organizations</b> that have <b>immunity under a treaty</b> (e.g., UN agencies, depending on the agreement).</li><li><b>Employees of local water districts</b>: considered <b>quasi-GOCCs</b>, created under <b>P.D. 198</b>, so Civil Service Law.</li><li><b>Corporate officers</b> (see next card).</li></ol>"},
+l4:{type:'learn',pg:[5],title:"GOCCs, Officers & Public Jobs",
+ body:"<b>GOCCs</b> (Government-Owned and Controlled Corporations): <b>with original charter</b> → Civil Service Law. <b>Without original charter</b> → Labor Code applies.<br><br><b>Corporate officers</b> usually include the <b>President, Secretary, Treasurer</b>, and must be <b>stated in the by-laws</b>. The <b>Vice President is NOT automatically</b> a corporate officer unless the by-laws say so.<br><br><b>Public employment</b> = jobs in the national or local government.",
+ ex:"Public school teacher, government nurse, LGU employee → Civil Service Law, not the Labor Code."},
+q6:{type:'single',pg:[4,5],prompt:"A public school teacher's employment is governed by:",
+ choices:["Civil Service Law","The Labor Code","RA 6727","The school's CBA"],ans:[0],why:"Government employees (teachers in public schools, gov't nurses, LGU staff) fall under Civil Service Law."},
+q7:{type:'single',pg:[5],prompt:"A GOCC WITHOUT an original charter. Which law covers its employees?",
+ choices:["The Labor Code","Civil Service Law","Neither, they're exempt","The treaty that created it"],ans:[0],why:"With original charter → Civil Service. Without original charter → Labor Code."},
+q8:{type:'single',pg:[5],prompt:"Employees of local water districts are under the Civil Service Law because water districts are:",
+ choices:["Quasi-GOCCs created under P.D. 198","Private corporations","International organizations","LGU contractors"],ans:[0],why:"Local water districts are quasi-GOCCs created under P.D. 198, so Civil Service Law applies."},
+q9:{type:'single',pg:[5],prompt:"Is a company's Vice President automatically a corporate officer?",
+ choices:["No, only if the by-laws say so","Yes, always","Yes, if the board appoints them","No, VPs can never be officers"],ans:[0],why:"Corporate officers must be stated in the by-laws. The VP isn't automatically one."},
+q10:{type:'multi',need:3,pg:[4,5],prompt:"Which are NOT covered by the Labor Code? (Choose 3)",
+ choices:["Government employees","Employees of international orgs with treaty immunity","Local water district employees","Rank-and-file call center agents"],ans:[0,1,2],why:"Gov't employees and water districts → Civil Service. Int'l orgs with treaty immunity are excluded. Private call center agents ARE covered."},
+q11:{type:'single',pg:[5],prompt:"Employees of an international organization are outside the Labor Code when the organization:",
+ choices:["Has immunity under a treaty","Pays above minimum wage","Works fully remote","Hires only foreigners"],ans:[0],why:"The exclusion depends on immunity under a treaty/agreement (e.g., some UN agencies)."},
+
+l5:{type:'learn',pg:[5,6],title:"Types of Agencies",
+ body:"<b>Private Recruitment Agency (PRA)</b>: a <b>licensed private company</b> that recruits workers for employers, for <b>local or overseas jobs (OFWs)</b>. Must be licensed/registered with <b>DOLE/DMW</b>.<br><b>Private Employment Agency (PEA)</b>: same idea, but focuses on <b>matching local job seekers to local companies</b> (term used in CHRA materials).<br><b>Manning Agency</b>: special recruitment agency for <b>seafarers</b> (ships and marine jobs).<br><b>PESO</b> (Public Employment Service Office): a <b>government office</b>, not private. Helps people find jobs <b>for free</b>. Found in LGUs, schools, and government centers.",
+ ex:"Agency hiring nurses for Saudi Arabia → PRA. Filipino crew for international cargo ships → Manning agency."},
+l6:{type:'learn',pg:[21,22],title:"Who Pays the Agency?",
+ body:"Usually the <b>EMPLOYER pays</b> the agency, <b>not the applicant</b>, because the company requested the service. Memory tip: <b>'Employer requested, employer pays.'</b><br><br>Employees should <b>not be charged excessive</b> placement/recruitment fees, especially for <b>local employment</b>. For <b>OFW jobs</b>, some legal placement fees may exist, but <b>illegal/excessive charging is prohibited</b>.<br><br>PRA = recruits workers (local to OFW), employer pays. PEA = matches workers locally, employer pays service fees (the agency serves the company).",
+ ex:"A company needs 20 call center agents. The agency provides applicants, and the company pays the agency, NOT the applicants."},
+q12:{type:'single',pg:[6],prompt:"A government office that helps people find jobs for FREE, found in LGUs and schools:",
+ choices:["PESO","PEA","Manning agency","NCMB"],ans:[0],why:"PESO is a government office, not a private agency, and its service is free."},
+q13:{type:'single',pg:[5,6],prompt:"An agency deploying Filipino crew to international cargo ships is a:",
+ choices:["Manning agency","PESO","Private Employment Agency","Labor-only contractor"],ans:[0],why:"Manning agencies are special recruitment agencies for seafarers."},
+q14:{type:'single',pg:[5,22],prompt:"Which agency type focuses on matching LOCAL job seekers to LOCAL companies?",
+ choices:["Private Employment Agency (PEA)","Manning agency","Overseas recruitment agency","DMW"],ans:[0],why:"PEA = same idea as a recruitment agency, but focused on local-to-local matching."},
+q15:{type:'single',pg:[21],prompt:"A hospital hires an agency to find nurses. Who usually pays the agency fee?",
+ choices:["The hospital","The nurses","DOLE","Split 50/50"],ans:[0],why:"'Employer requested, employer pays.' The hospital asked for the service."},
+q16:{type:'single',pg:[5],prompt:"A private recruitment agency must be licensed by:",
+ choices:["DOLE (DOLE/DMW for overseas)","The NLRC","The barangay","No license needed"],ans:[0],why:"Notes: licensed by DOLE; registered with DOLE/DMW, especially for overseas deployment."},
+q17:{type:'single',pg:[21],prompt:"For OVERSEAS jobs, which is true about placement fees?",
+ choices:["Some legal fees may exist, but excessive charging is prohibited","Agencies can charge any amount","They are always illegal","Only the employee ever pays"],ans:[0],why:"For OFW jobs some legal placement fees may exist, but illegal/excessive charging is prohibited."},
+m1:{type:'match',pg:[1,5,6],prompt:"Tap the matching pairs",pairs:[["DOLE","The 'boss' agency"],["NWPC","Wage policy-maker"],["RTWPB","Sets regional min wage"],["PESO","Free gov't job help"],["Manning agency","Recruits seafarers"]],
+ why:"Boss → DOLE. Policy → NWPC. Implementer → RTWPB. Free → PESO. Ships → Manning."},
+
+/* ================= UNIT 2: UNION LIFE ================= */
+l7:{type:'learn',pg:[1,4],title:"Labor Relations & Unions",say:"Union time. Let's form the team.",
+ body:"<b>Labor relations</b>: a field of HRM that focuses on the <b>relationship between employers (management) and employees</b>, especially when employees are represented by a <b>union</b>.<br><b>Unionization</b>: employees <b>form or join a labor union</b> to have a collective voice in dealing with management.<br>A <b>labor union</b> is an organization of workers formed to <b>protect and promote their rights and interests</b>.<br>Employees unionize to: negotiate <b>better wages</b>, improve <b>working conditions</b>, secure <b>benefits</b>, protect their <b>rights</b>, and be represented in <b>grievances, unfair treatment, or dismissal</b>.",
+ ex:"Factory workers form a union to ask for higher salary, overtime pay, and safer working conditions."},
+l8:{type:'learn',pg:[1,2],title:"Certification Election & Voters",
+ body:"A <b>certification election</b> is a <b>secret voting process</b> where employees choose who will represent them. It determines the <b>exclusive bargaining agent (union)</b>, or simply <b>'a union or no union'</b>.<ul><li><b>Qualified voter</b>: allowed to vote; must be part of the <b>bargaining unit</b> (e.g., regular rank-and-file).</li><li><b>Unqualified voter</b>: NOT allowed; usually <b>managerial</b> and <b>confidential</b> employees, because they represent management, not labor.</li><li><b>Optional (challenged) voter</b>: eligibility is <b>questionable</b>; votes <b>conditionally</b> in a <b>sealed envelope</b>, counted <b>only if it affects the result</b>.</li></ul>",
+ ex:"Qualified = sure vote. Unqualified = no vote. Optional = 'maybe' vote (subject to validation)."},
+q18:{type:'single',pg:[1],prompt:"Labor relations focuses on the relationship between:",
+ choices:["Employers and employees, especially when unionized","DOLE and NWPC","HR and Finance","A company and its competitors"],ans:[0],why:"Labor relations = employer–employee relationship, especially with union representation."},
+q19:{type:'single',pg:[1,2],prompt:"A certification election is:",
+ choices:["A secret vote where employees choose their representative","A public NLRC hearing","Management voting on wages","A DOLE inspection"],ans:[0],why:"Secret voting process to determine the exclusive bargaining agent (or 'union or no union')."},
+q20:{type:'single',pg:[2],prompt:"Why are managerial and confidential employees UNQUALIFIED voters?",
+ choices:["They represent management, not labor","They earn too much","They're still probationary","They're field personnel"],ans:[0],why:"Reason in the notes: they represent management, not labor."},
+q21:{type:'single',pg:[2],prompt:"A challenged voter's ballot goes in a sealed envelope. When is it counted?",
+ choices:["Only if it affects the election result","Always","Never","Only if management agrees"],ans:[0],why:"Optional/challenged votes are counted only if they would change the outcome."},
+q22:{type:'single',pg:[2],prompt:"Which employee is a QUALIFIED voter?",
+ choices:["A regular rank-and-file worker in the bargaining unit","The HR Manager","The CEO's confidential secretary","The owner of a contractor"],ans:[0],why:"Qualified voters are part of the bargaining unit, e.g., regular rank-and-file."},
+q23:{type:'single',pg:[1,4],prompt:"Which is NOT a purpose of a labor union?",
+ choices:["Setting the regional minimum wage","Negotiating better wages and benefits","Representing workers in grievances","Improving working conditions"],ans:[0],why:"Regional minimum wage is set by the RTWPB, not unions."},
+
+l9:{type:'learn',pg:[2,4],title:"Bargaining Unit vs Bargaining Agent",
+ body:"<b>Bargaining unit</b>: the <b>group of employees</b> legally recognized as represented by a union for collective bargaining. Focus question: <b>'WHO are included?'</b> Usually employees with <b>similar jobs or interests</b>; <b>managers and supervisors are usually excluded</b>. It determines who votes in the certification election, who is covered by the CBA, and the scope of union representation.<br><br><b>Bargaining agent</b>: the <b>official union chosen by employees through a certification election</b>. It is the <b>only union allowed to negotiate</b> with the employer. 'The official voice of the workers.'",
+ ex:"All production workers in a factory = bargaining unit. If several unions exist, the one that wins the election = bargaining agent."},
+l10:{type:'learn',pg:[3,4],title:"CBA & Union Status",
+ body:"A <b>CBA</b> (Collective Bargaining Agreement) is a <b>written agreement between the employer and the employees' union</b>, made after negotiating wages, working hours, benefits, and other conditions.<br><br><b>Union status:</b> Before election → <b>Contending union</b>. After winning → <b>Bargaining agent</b>. During negotiation → <b>Bargaining union</b>. After CBA is signed → <b>Contracting union</b>.<br><br><b>CBA posting rule:</b> post in <b>at least 2 visible places</b>, <b>at least 5 days before ratification</b>. The <b>employer and the union</b> are responsible. Not posting = <b>fatal defect</b> (violates the employees' <b>right to information</b>)."},
+q24:{type:'single',pg:[2],prompt:"'WHO are included in the union representation?' is the focus question of the:",
+ choices:["Bargaining unit","Bargaining agent","CBA","Grievance machinery"],ans:[0],why:"Bargaining unit = 'Who's inside.'"},
+q25:{type:'single',pg:[4],prompt:"Several unions compete. The one that wins the certification election becomes the:",
+ choices:["Bargaining agent","Contending union","Bargaining unit","Contracting union"],ans:[0],why:"Winner = bargaining agent, the only union allowed to negotiate with the employer."},
+q26:{type:'single',pg:[3,4],prompt:"Put the union status in the right order:",
+ choices:["Contending → Bargaining agent → Bargaining union → Contracting union","Bargaining agent → Contending → Contracting → Bargaining union","Contracting → Contending → Bargaining union → Bargaining agent","Contending → Contracting → Bargaining agent → Bargaining union"],ans:[0],
+ why:"Before election: contending. Won: bargaining agent. Negotiating: bargaining union. CBA signed: contracting union."},
+q27:{type:'single',pg:[4],prompt:"The CBA must be posted in at least ___ visible places, at least ___ days before ratification.",
+ choices:["2 places, 5 days","1 place, 3 days","3 places, 7 days","2 places, 10 days"],ans:[0],why:"2 visible places, 5 days before ratification."},
+q28:{type:'single',pg:[4],prompt:"If the CBA is NOT posted, it is a:",
+ choices:["Fatal defect","Minor issue","Valid shortcut if the union agrees","Matter for a small fine only"],ans:[0],why:"Not posting = serious/fatal defect, because it violates the employees' right to information."},
+q29:{type:'single',pg:[3],prompt:"A CBA is a written agreement between:",
+ choices:["The employer and the employees' union","DOLE and the employer","The union and the NLRC","Two competing unions"],ans:[0],why:"CBA = employer + union, after negotiating wages, hours, benefits, conditions."},
+q30:{type:'single',pg:[16],prompt:"A 'yellow dog contract' (employee promises not to join, form, or help any union) is:",
+ choices:["Void, it violates the right to self-organization","Valid if signed","Valid for probationary employees","Required for managers"],ans:[0],why:"Not allowed under the Labor Code: void (walang bisa) since it violates the right to self-organization."},
+q31:{type:'single',pg:[2],prompt:"Who is usually EXCLUDED from a rank-and-file bargaining unit?",
+ choices:["Managers and supervisors","Production workers","Call center agents","Machine operators"],ans:[0],why:"Managers and supervisors are usually excluded from the bargaining unit."},
+
+l11:{type:'learn',pg:[3,25],title:"Grievances & Dispute Handling",
+ body:"A <b>grievance</b> is an <b>employee complaint</b> about something unfair or wrong at work: salary issues (underpayment, delayed pay), unfair supervisor, unequal workload, harassment, promotion or scheduling issues.<br><b>Dispute handling</b> resolves conflicts: employee vs employer, employee vs employee, union vs management.<br><b>Process:</b> employee files complaint → HR investigates → both sides heard → resolution (settlement, correction, disciplinary action) → follow-up.<br><b>Goal:</b> fairness, peace at work, preventing escalation.<br><b>Grievance machinery</b>: the <b>formal procedure</b> for settling workplace complaints, usually <b>based on the CBA</b>."},
+l12:{type:'learn',pg:[3,25,26],title:"Compliance, NCMB & Bystander Rule",
+ body:"<b>Labor laws compliance</b>: following all government labor laws: minimum wage, proper hours (8-hour rule, OT pay), holiday and night differential pay, SSS/PhilHealth/Pag-IBIG, proper termination, anti-discrimination and safety. It protects employees, prevents lawsuits and penalties, maintains credibility, and ensures ethical HR.<br><br><b>NCMB</b> (National Conciliation and Mediation Board): a <b>DOLE-attached agency</b> that helps prevent and settle labor disputes peacefully through <b>conciliation and mediation</b>.<br><br><b>Bystander rule (your notes)</b>: an employee not directly involved in a dispute should <b>observe, not interfere</b>.<br><i>Heads up: in the actual Labor Code (Art. 271), the bystander is the <b>employer</b> in a certification election. It can't interfere or oppose the petition.</i>"},
+q32:{type:'single',pg:[3],prompt:"Put the dispute handling process in order:",
+ choices:["Complaint filed → HR investigates → Both sides heard → Resolution → Follow-up","HR investigates → Resolution → Complaint filed → Follow-up → Both sides heard","Resolution → Complaint filed → Both sides heard → HR investigates → Follow-up","Both sides heard → Complaint filed → Resolution → HR investigates → Follow-up"],ans:[0],
+ why:"File → investigate → hear both sides → resolve → follow up."},
+q33:{type:'single',pg:[3],prompt:"Which is NOT a common grievance?",
+ choices:["Getting 13th month pay on time","Delayed pay","Unfair treatment by a supervisor","Unequal workload"],ans:[0],why:"Getting paid on time is compliance, not a complaint."},
+q34:{type:'single',pg:[25,26],prompt:"Which DOLE-attached agency settles disputes through conciliation and mediation?",
+ choices:["NCMB","NLRC","NWPC","PESO"],ans:[0],why:"NCMB = National Conciliation and Mediation Board. 'Mediate labor disputes.'"},
+q35:{type:'single',pg:[25],prompt:"Grievance machinery is usually based on the:",
+ choices:["CBA","Civil Service Law","SSS charter","Regional Wage Order"],ans:[0],why:"It's the formal in-company procedure for complaints, usually based on the CBA."},
+q36:{type:'single',pg:[25,26],prompt:"According to YOUR NOTES, the Bystander Rule says:",
+ choices:["An employee not directly involved in a dispute should observe, not interfere","Bystanders of a dispute get paid double","Witnesses must testify at the NLRC","The employer must join the union"],ans:[0],
+ why:"That's the notes' version. Exam heads-up: in the Labor Code (Art. 271), the EMPLOYER is the bystander in a certification election and can't interfere or oppose it."},
+q37:{type:'multi',need:2,pg:[3],prompt:"Which are part of labor laws compliance? (Choose 2)",
+ choices:["Minimum wage compliance","SSS, PhilHealth, Pag-IBIG benefits","Winning the certification election","Choosing the bargaining agent"],ans:[0,1],why:"Compliance = following gov't labor rules: wages, hours, benefits, termination, safety."},
+m2:{type:'match',pg:[4],prompt:"Match the memory tips",pairs:[["Unionization","Form the team"],["Certification election","Pick the leader"],["Bargaining unit","Who's inside"],["CBA","Final contract"],["Grievance","Complaint box"]],
+ why:"Straight from the notes' memory tip for labor relations. Bonus: Labor Law = 'Government rules'."},
+
+/* ================= UNIT 3: CLOCK IN ================= */
+l13:{type:'learn',pg:[6],title:"Normal Hours of Work",say:"Clock in! Hours and breaks first.",
+ body:"<b>Conditions of employment</b> (P.D. 442, Labor Code): the basic rules on how employees are treated: hours, pay, benefits, rights. The <b>foundation of employee protection</b>.<br><br><b>Normal hours</b> = <b>8 hours per day</b>, <b>NOT including</b> the lunch break. So it's 8 hours excluding meal, or 9 hours including a 1-hour lunch. Maximum <b>6 days per week</b> with 1 rest day.<br>Why 8? Too much work affects health, reduces productivity, increases mistakes. The law balances productivity AND welfare."},
+l14:{type:'learn',pg:[6,7,'CS'],title:"Meal & Rest Periods",
+ body:"<b>Standard meal break:</b> <b>60 minutes, UNPAID</b> (non-compensable), because you're not working and are free to rest or eat.<br><b>Exam favorite:</b> it can be <b>shortened to not less than 20 minutes</b>, but then it becomes <b>PAID</b>.<br>Cheat sheet: employees are entitled to <b>not less than 1 hour</b>; operations of more than 16 hours can have shorter breaks.<br><b>Rest periods of 5 to 20 minutes</b> are compensable.<br><b>Compensable working hours</b> include: hours worked, <b>waiting time</b>, <b>being on-call</b>, attendance."},
+q38:{type:'single',pg:[6],prompt:"Normal hours of work under the Labor Code:",
+ choices:["8 hours a day, excluding the meal break","8 hours including the meal break","10 hours a day","9 hours excluding the meal break"],ans:[0],why:"8 hours excluding meal = 9 hours including a 1-hour lunch."},
+q39:{type:'single',pg:[6,7],prompt:"A standard 1-hour meal break is:",
+ choices:["Non-compensable (unpaid)","Paid at 100%","Paid at 125%","Counted as overtime"],ans:[0],why:"You're free to rest or eat, so the standard 60-minute break is unpaid."},
+q40:{type:'single',pg:[6,7],prompt:"The meal break is shortened to 20 minutes. It is now:",
+ choices:["Paid/compensable","Still unpaid","Illegal","Counted as a rest day"],ans:[0],why:"Exam favorite: shortened meal break → becomes paid."},
+q41:{type:'single',pg:[7],prompt:"The meal break can be shortened to a minimum of:",
+ choices:["20 minutes","5 minutes","30 minutes","45 minutes"],ans:[0],why:"Can be reduced to 20 minutes minimum, and must then be compensated."},
+q42:{type:'single',pg:['CS'],prompt:"Short rest periods of 5 to 20 minutes are:",
+ choices:["Compensable working time","Unpaid","Deducted from salary","Overtime"],ans:[0],why:"Cheat sheet: rest periods of 5 to 20 minutes count as compensable hours."},
+q43:{type:'multi',need:3,pg:['CS'],prompt:"Which count as compensable working hours? (Choose 3)",
+ choices:["Hours worked","Waiting time","Being on-call","The regular 1-hour meal break"],ans:[0,1,2],why:"Hours worked, waiting time, and on-call are compensable. The standard 1-hour meal break isn't."},
+q44:{type:'single',pg:[6],prompt:"Under normal hours, the maximum work days per week is:",
+ choices:["6 days, with 1 rest day","5 days","7 days","4 days"],ans:[0],why:"Max 6 days a week, with 1 rest day."},
+
+l15:{type:'learn',pg:[7,'CS'],title:"Night Shift Differential",
+ body:"<b>NSD</b> (Art. 86): extra pay for working at night, <b>10:00 PM to 6:00 AM</b>: <b>+10% of the regular hourly wage</b> per hour.<br>Why? Night work disrupts your <b>body clock</b> (circadian rhythm), affects sleep and long-term health. The law compensates that discomfort.<br><b>Computation:</b> no. of hours × hourly rate × <b>1.10</b>.<br>Exemption (b) for NSD: retail/service establishments with <b>not more than 5 workers</b>."},
+l16:{type:'learn',pg:[7,'CS'],title:"Overtime Pay",
+ body:"<b>Overtime</b> (Art. 87): work <b>beyond 8 hours a day</b>. MUST be paid extra because you extend hours, sacrifice personal time, and risk fatigue.<ul><li>Ordinary day: hourly × <b>1.25</b></li><li>Rest day or special day: hourly × 1.3 × <b>1.3</b></li><li>Special day on rest day: hourly × 1.5 × 1.3</li><li>Regular holiday: hourly × 2.0 × 1.3</li><li>Regular holiday on rest day: hourly × 2.6 × 1.3</li></ul>Rule: OT on a rest day/holiday = <b>that day's rate + 30%</b>.<br>Retail/service with <b>less than 10 workers are NOT exempted</b> from OT or premium pay."},
+q45:{type:'single',pg:[7],prompt:"Night shift differential covers work between:",
+ choices:["10 PM and 6 AM","8 PM and 4 AM","12 MN and 8 AM","6 PM and 6 AM"],ans:[0],why:"NSD window: 10:00 PM to 6:00 AM."},
+q46:{type:'single',pg:[7],prompt:"The NSD rate is:",
+ choices:["+10% of regular hourly wage","+25%","+30%","+100%"],ans:[0],why:"+10% per hour. Computation: hours × hourly × 1.10."},
+q47:{type:'single',pg:['CS'],prompt:"For NSD only, a retail/service establishment is exempt if it has:",
+ choices:["Not more than 5 workers","Less than 10 workers","Less than 20 workers","Any number of workers"],ans:[0],why:"NSD's exemption (b) is stricter: not more than 5 workers."},
+q48:{type:'single',pg:[7],prompt:"Overtime on an ordinary working day is paid at:",
+ choices:["Regular hourly rate + 25%","+30%","+10%","Double"],ans:[0],why:"Ordinary day OT = hourly × 1.25."},
+q49:{type:'single',pg:[7,'CS'],prompt:"Overtime on a rest day or holiday is computed as:",
+ choices:["That day's rate for the first 8 hours + 30%","Ordinary rate + 25%","Always double","+10%"],ans:[0],why:"OT on premium days = the day's rate × 1.3."},
+q50:{type:'single',pg:['CS'],prompt:"A retail store with 7 workers. Is it exempt from overtime and premium pay?",
+ choices:["No, exemption (b) doesn't apply to OT and premium pay","Yes, it has less than 10 workers","Yes, if the owner agrees","Only from OT, not premium pay"],ans:[0],
+ why:"Cheat sheet: for premium pay and OT, (b) retail/service with less than 10 workers is NOT exempted. That exemption applies to holiday pay and SIL."},
+q51:{type:'single',pg:[7],prompt:"Why is overtime paid higher, per the notes?",
+ choices:["You extend hours, sacrifice personal time, and may get fatigued","Because DOLE taxes it","To punish employers","To reward managers"],ans:[0],why:"The law ensures fair compensation for extra effort."},
+
+l17:{type:'learn',pg:[8],title:"Field Personnel, Managers, No Work No Pay",
+ body:"<b>Field personnel</b>: a <b>non-agricultural</b> employee who works <b>outside company premises</b> and whose <b>working hours can't be easily monitored or determined</b>. E.g., delivery riders, sales agents, field inspectors.<br><b>Managerial employees</b>: main job is <b>managing the company or a department</b>; responsible for planning, directing, supervising. They make decisions and manage people or operations.<br><b>No work, no pay</b>: if an employee doesn't work, they won't be paid. Principle: <b>'A fair day's wage for a fair day's work.'</b>"},
+l18:{type:'learn',pg:[8,23,24],title:"Rest Day & Compressed Work Week",
+ body:"<b>Weekly rest day:</b> <b>1 rest day after 6 consecutive workdays</b>, at least <b>24 consecutive hours</b>. Without rest, productivity drops, health suffers, burnout happens.<br>Employer can require rest-day work ONLY for: <b>emergencies</b> (fire, flood, typhoon, earthquake, epidemic), <b>urgent repairs</b> to prevent serious loss, <b>abnormal pressure of work</b>, <b>preventing loss of perishable goods</b>, <b>continuous operations</b>. Pay: <b>+30%</b>.<br><br><b>Compressed work week:</b> longer hours per day, fewer days per week (8 hrs × 6 days → <b>10 hrs × 4 days</b>). Purpose: reduce costs, save electricity, emergencies, flexible scheduling. Total weekly hours must still follow labor rules. Memory: <b>'pinagsiksik na work hours'</b>."},
+q52:{type:'single',pg:[8],prompt:"Which worker is field personnel?",
+ choices:["A sales agent working outside the office with unmonitored hours","A cashier at the store counter","An HR assistant in the office","A factory line worker"],ans:[0],why:"Non-agricultural, outside premises, hours can't be determined."},
+q53:{type:'single',pg:[8],prompt:"'A fair day's wage for a fair day's work' is the principle behind:",
+ choices:["No work, no pay","Night shift differential","13th month pay","Separation pay"],ans:[0],why:"Salary is given only for actual work done."},
+q54:{type:'single',pg:[8,14],prompt:"The weekly rest day rule:",
+ choices:["At least 24 consecutive hours after 6 consecutive workdays","12 hours after 5 workdays","48 hours per week","1 day per month"],ans:[0],why:"1 rest day (24 consecutive hours) after 6 workdays. Kasambahays get the same 24-hour weekly rest."},
+q55:{type:'single',pg:[8],prompt:"Which is NOT a valid reason to require work on a rest day?",
+ choices:["The supervisor wants to finish early for a party","Typhoon emergency","Urgent repairs to prevent serious loss","Preventing loss of perishable goods"],ans:[0],why:"Only emergencies, urgent repairs, abnormal pressure, perishable goods, or continuous operations."},
+q56:{type:'single',pg:[8],prompt:"Pay for working on your rest day:",
+ choices:["+30% of regular wage","+10%","+25%","No extra pay"],ans:[0],why:"Rest day work = 130% of the daily rate."},
+q57:{type:'single',pg:[24],prompt:"A compressed work week means:",
+ choices:["Longer hours per day, fewer days per week","Shorter days, more days","No rest day","Night shifts only"],ans:[0],why:"E.g., 10 hrs × 4 days instead of 8 hrs × 6 days."},
+q58:{type:'single',pg:[24],prompt:"Which is a purpose of a compressed work week?",
+ choices:["Reduce costs and save electricity","Avoid paying 13th month","Remove rest days","Skip SSS contributions"],ans:[0],why:"Purpose: reduce costs, save electricity, emergencies, flexible scheduling."},
+m3:{type:'match',pg:[6,7,8],prompt:"Match the time rules",pairs:[["60-min meal break","Unpaid"],["20-min meal break","Paid"],["10 PM to 6 AM","+10% NSD"],["OT, ordinary day","+25%"],["Rest day work","+30%"]],
+ why:"Short break = paid. Night = +10%. Ordinary OT = +25%. Rest day = +30%."},
+
+/* ================= UNIT 4: HOLIDAY MODE ================= */
+l19:{type:'learn',pg:[8,9,16,17,22,'CS'],title:"Regular Holiday Pay",say:"Holiday mode! Rates are exam gold.",
+ body:"Regular holiday: you get paid <b>even if you don't work</b>.<ul><li>Did not work: <b>100%</b></li><li>Worked: <b>200%</b> (double)</li><li>Worked, on your rest day: <b>260%</b></li><li>Double regular, unworked: 200% · worked: <b>300%</b> · worked on rest day: <b>390%</b></li></ul>Memory: <b>'Regular holiday = double pay.'</b><br><b>To qualify:</b> you <b>worked</b> the day immediately before, OR were on <b>paid leave</b> the day before.<br><b>Regular holidays:</b> New Year's (Jan 1), Maundy Thursday, Good Friday, Eid'l Fitr, Eid'l Adha, Araw ng Kagitingan (Apr 9), Labor Day (May 1), Independence Day (June 12), National Heroes Day (last Mon of Aug), Bonifacio Day (Nov 30), Christmas (Dec 25), Rizal Day (Dec 30).",
+ ex:"₱500 daily: absent but qualified → ₱500. Worked → ₱1,000. Worked on rest day → ₱1,300."},
+q59:{type:'single',pg:[9,17,22],prompt:"Regular holiday. Employee did NOT work but qualified. Pay:",
+ choices:["100%","0%","130%","200%"],ans:[0],why:"Regular holidays are paid even if unworked: 100%."},
+q60:{type:'single',pg:[9,17,22],prompt:"Employee WORKED on a regular holiday. Pay:",
+ choices:["200%","130%","100%","260%"],ans:[0],why:"Worked regular holiday = double pay (100% regular + 100% holiday)."},
+q61:{type:'single',pg:[9,17,22],prompt:"Worked on a regular holiday that is also your rest day:",
+ choices:["260%","200%","300%","390%"],ans:[0],why:"200% × 1.3 = 260%."},
+q62:{type:'single',pg:[16,'CS'],prompt:"Which is a REGULAR holiday?",
+ choices:["Araw ng Kagitingan (April 9)","Ninoy Aquino Day (Aug 21)","All Saints' Day (Nov 1)","Christmas Eve (Dec 24)"],ans:[0],why:"April 9 is regular. The other three are special non-working days."},
+q63:{type:'single',pg:[9,17],prompt:"To receive regular holiday pay, the employee must have:",
+ choices:["Worked or been on paid leave the day before","Worked the day after","At least 1 year of service","Signed the CBA"],ans:[0],why:"Condition: worked the day immediately before, OR on paid leave the day before."},
+q64:{type:'single',pg:['CS'],prompt:"Employee WORKED on a double regular holiday (two regular holidays on one day). Pay:",
+ choices:["300%","200%","260%","390%"],ans:[0],why:"Double regular: unworked 200%, worked 300%, worked on rest day 390%."},
+
+l20:{type:'learn',pg:[9,17,22,23,'CS'],title:"Special Days & Who's Excluded",
+ body:"<b>Special non-working day:</b> usually <b>'no work, no pay'</b> (unless company policy says otherwise).<ul><li>Worked: <b>130%</b></li><li>Worked on rest day: <b>150%</b></li><li>Double special worked: 150% · on rest day: <b>195%</b></li></ul>Memory: <b>'Special holiday = extra 30%.'</b><br><b>Special days:</b> Chinese New Year, Black Saturday, Ninoy Aquino Day (Aug 21), All Saints' (Nov 1), All Souls' (Nov 2), Immaculate Conception (Dec 8), Christmas Eve (Dec 24), Last Day of the Year (Dec 31).<br><br><b>No holiday pay:</b> government employees, retail/service with <b>less than 10 workers</b>, kasambahays, managerial employees, field personnel (plus officers or members of a managerial staff).",
+ ex:"₱500 daily, worked on a special day → 500 × 1.3 = ₱650."},
+q65:{type:'single',pg:[22,'CS'],prompt:"Special non-working day. Employee did NOT work. Pay:",
+ choices:["None, 'no work, no pay' (unless company policy)","100%","130%","50%"],ans:[0],why:"Special days follow 'no work, no pay'."},
+q66:{type:'single',pg:[17,22,23],prompt:"Employee WORKED on a special non-working day. Pay:",
+ choices:["130%","200%","100%","150%"],ans:[0],why:"Special day = extra 30%."},
+q67:{type:'single',pg:[23,'CS'],prompt:"Worked on a special day that is also your rest day:",
+ choices:["150%","130%","260%","195%"],ans:[0],why:"Special + rest day = 150% (shortcut usually used in CHRA)."},
+q68:{type:'single',pg:[17,'CS'],prompt:"Which is a SPECIAL non-working day?",
+ choices:["Ninoy Aquino Day (Aug 21)","Bonifacio Day (Nov 30)","Rizal Day (Dec 30)","Labor Day (May 1)"],ans:[0],why:"Aug 21 is special. Bonifacio, Rizal, and Labor Day are regular."},
+q69:{type:'multi',need:3,pg:[9,17],prompt:"Who does NOT get holiday pay? (Choose 3)",
+ choices:["Government employees","Kasambahays","Retail/service with less than 10 workers","Rank-and-file in a 50-person factory"],ans:[0,1,2],why:"The factory worker is covered. The other three are excluded."},
+q70:{type:'single',pg:['CS'],prompt:"Worked on a double special day that falls on your rest day:",
+ choices:["195%","150%","260%","130%"],ans:[0],why:"Cheat sheet: worked, double special, rest day = basic × 1.95."},
+
+l21:{type:'learn',pg:['CS'],title:"Holiday Fine Print",
+ body:"<b>Absences before a holiday:</b><ul><li>Day before = leave <b>WITH pay</b> → holiday pay <b>YES</b>.</li><li>Day before = leave <b>WITHOUT pay</b> → <b>NO</b> (YES only if they work the holiday).</li><li>Day before = <b>rest day</b> → look at the day before that: <b>worked → YES</b>; absent → NO (unless they work the holiday).</li></ul><b>Successive regular holidays</b> (per notes): absent the day before + both unworked → <b>1 holiday pay only</b>. Absent the day before but <b>worked holiday 1</b> → <b>2 holiday pays</b>.<br><b>Temporary shutdown</b> (yearly inventory/maintenance): regular holidays within it <b>are compensated</b>.<br><b>Piece-rate:</b> at least the <b>average daily earnings of the last 7 work days</b>. <b>Seasonal workers:</b> not paid during off-season. <b>No regular working days:</b> still entitled."},
+q71:{type:'single',pg:['CS'],prompt:"Day before the holiday: leave WITHOUT pay. Holiday unworked. Holiday pay?",
+ choices:["No","Yes","Half","Yes, if it's a regular holiday"],ans:[0],why:"Leave without pay the day before = no holiday pay (unless they work the holiday)."},
+q72:{type:'single',pg:['CS'],prompt:"Day before the holiday was a REST day. The day before that, the employee worked. Holiday unworked. Holiday pay?",
+ choices:["Yes","No","Half only","Only if it's a special day"],ans:[0],why:"If the day before is a rest day, check the day before it. Worked → yes."},
+q73:{type:'single',pg:['CS'],prompt:"Successive regular holidays (Maundy Thu + Good Fri). Absent the day before, but WORKED Maundy Thursday. Per the notes:",
+ choices:["2 holiday pays","No holiday pay","1 holiday pay only","3 holiday pays"],ans:[0],why:"Notes table: absent + worked holiday 1 → 2 holiday pays. Heads-up: the DOLE handbook says that if both holidays are unworked after an absence, neither is paid."},
+q74:{type:'single',pg:['CS'],prompt:"Regular holidays that fall within a temporary shutdown for yearly inventory are:",
+ choices:["Compensated","Unpaid","Converted to SIL","Deducted from salary"],ans:[0],why:"Regular holidays during a temporary or periodic shutdown are still compensated."},
+q75:{type:'single',pg:['CS'],prompt:"Holiday pay of a piece-rate worker is at least:",
+ choices:["Average daily earnings for the last 7 work days","Minimum wage × 2","Nothing","Last month's average"],ans:[0],why:"Piece-rate: at least equal to the average daily earnings of the past 7 work days."},
+q76:{type:'single',pg:['CS'],prompt:"Seasonal workers during the off-season:",
+ choices:["Are not paid holiday pay","Get 100% holiday pay","Get 200%","Get 50%"],ans:[0],why:"Seasonal workers aren't paid holiday pay during the off-season."},
+m4:{type:'match',pg:[9,17,22,23,'CS'],prompt:"Match the holiday rates",pairs:[["Regular, unworked","100%"],["Regular, worked","200%"],["Regular + rest day","260%"],["Special, worked","130%"],["Special + rest day","150%"]],
+ why:"Regular = double. Special = extra 30%. Add a rest day: ×1.3 for regular, 150% for special."},
+
+/* ================= UNIT 5: SHOW ME THE MONEY ================= */
+l22:{type:'learn',pg:[9,'CS'],title:"RA 6727: Wage Rationalization Act",say:"Money unit. Wages first.",
+ body:"<b>Minimum wage</b>: the lowest legal salary an employer can pay, set by the <b>RTWPBs</b>.<br><b>Basis for wage classification</b> (RA 6727): <b>agriculture, retail establishment, service establishment</b>.<br><b>Regional Wage Orders</b>: prescribe the daily minimum wage, and give the basis and procedure for <b>applying for exemption</b> (at most <b>1 year</b>, e.g., natural calamities).<br>Per notes: NCR = <b>₱658 to ₱695</b>; NCR kasambahays = <b>₱7,000 to ₱7,800</b> (these figures change with new wage orders).<br><b>Workers paid by results</b>: at least the prescribed minimum wage."},
+l23:{type:'learn',pg:['CS'],title:"Penalties, BMBEs & More",
+ body:"<b>Penalty for violation:</b> fine <b>₱25,000 to ₱100,000</b>, imprisonment <b>2 to 4 years</b>, and pay the employee <b>double the unpaid</b> amount.<br><b>BMBEs</b> (Barangay Micro Business Enterprises): assets <b>not exceeding ₱3M</b>; employees still get <b>SSS and PhilHealth</b>.<br><b>AERW</b> (Art. 124): all private establishments submit an <b>annual verified itemized report</b> of labor component and salaries.<br><b>Income tax:</b> exempt from withholding = <b>minimum wage earners</b> and annual salary <b>≤ ₱250,000</b>.<br><b>EEMR</b> (Estimated Equivalent Monthly Rate) factors: monthly-paid = <b>365</b>; daily-paid with 1 rest day = <b>313</b>, 2 rest days = <b>261</b> (every day = 395 per notes).<br><b>Kasambahay as salesclerk</b> → gets the retail/service wage. Reduced workdays → wages deducted, 'no work, no pay'."},
+q77:{type:'single',pg:['CS'],prompt:"RA 6727 is known as the:",
+ choices:["Wage Rationalization Act","Kasambahay Law","Expanded Maternity Leave Law","Magna Carta of Women"],ans:[0],why:"RA 6727 = Wage Rationalization Act (minimum wage)."},
+q78:{type:'single',pg:['CS'],prompt:"Under RA 6727, wages are classified by:",
+ choices:["Agriculture, retail establishment, service establishment","Gender, age, religion","Region only","Educational attainment"],ans:[0],why:"Basis for wage classification: agriculture, retail, service."},
+q79:{type:'single',pg:['CS'],prompt:"Penalty for violating minimum wage law:",
+ choices:["₱25k to ₱100k fine, 2 to 4 years jail, and pay double the unpaid","₱5,000 fine only","6 months jail only","A warning"],ans:[0],why:"Fine ₱25,000 to ₱100,000, imprisonment 2 to 4 years, and double the unpaid wages to the employee."},
+q80:{type:'single',pg:['CS'],prompt:"A BMBE has assets NOT exceeding:",
+ choices:["₱3 million","₱1 million","₱10 million","₱500,000"],ans:[0],why:"BMBE assets ≤ ₱3M. Employees still get SSS and PhilHealth."},
+q81:{type:'single',pg:['CS'],prompt:"Daily-paid employee with 1 rest day per week. EEMR factor:",
+ choices:["313","365","261","395"],ans:[0],why:"Monthly-paid 365. Daily-paid: 1 rest day 313, 2 rest days 261."},
+q82:{type:'single',pg:['CS'],prompt:"Who is exempt from withholding tax, per the cheat sheet?",
+ choices:["Minimum wage earners and those earning ≤ ₱250,000 a year","All employees","Managers only","OFWs only"],ans:[0],why:"MWEs and annual salary not exceeding ₱250,000."},
+q83:{type:'single',pg:['CS'],prompt:"AERW (Art. 124) requires all private establishments to:",
+ choices:["Submit an annual verified itemized report of labor component and wages","Post the CBA","Pay 13th month","Register with PESO"],ans:[0],why:"Annual Establishment Report on Wages."},
+q84:{type:'single',pg:['CS'],prompt:"A kasambahay is assigned as salesclerk in the employer's store. Her wage should be:",
+ choices:["The wage for retail and service","The kasambahay rate","Half the kasambahay rate","No change at all"],ans:[0],why:"Working as salesclerk = wage for retail and service."},
+
+l24:{type:'learn',pg:[10,23],title:"Payment of Wages",
+ body:"Wages must be paid <b>at least twice a month</b> (every 2 weeks), with a <b>maximum of 16 days</b> between payments. Employers can't delay salary too long.<br><b>Exception:</b> <b>force majeure</b> (natural disasters): pay immediately after.<br><b>Conditions:</b> must be paid <b>on time</b>, in <b>legal money/cash</b>, and <b>near the workplace</b> (to avoid burdening employees).<br>Memory: <b>'Salary should be easy to claim.'</b>",
+ ex:"Factory workers shouldn't have to travel to another city just to get their salary."},
+l25:{type:'learn',pg:[18,'CS'],title:"Service Charges",
+ body:"<b>Service charges</b> (Art. 96, amended by <b>RA 11360</b>): what customers pay (usually <b>10%</b>) for services in restaurants, hotels, cafes.<br>NOT a statutory contribution to gov't funds; it's a <b>form of indirect compensation</b> in the service industry.<br><b>Who gets it:</b> employees serving customers (waiters, hotel staff), i.e., <b>rank-and-file, not management</b>.<br><b>Distribution:</b> <b>completely and equally</b>, based on actual hours/days of work, <b>not less than once every 2 weeks or twice a month</b> (intervals ≤ 16 days)."},
+q85:{type:'single',pg:[10],prompt:"Wages must be paid at least:",
+ choices:["Twice a month (every 2 weeks)","Once a month","Every week","Every quarter"],ans:[0],why:"At least every 2 weeks or twice a month."},
+q86:{type:'single',pg:[10],prompt:"The maximum interval between paydays:",
+ choices:["16 days","15 days","30 days","7 days"],ans:[0],why:"16 days maximum between payments."},
+q87:{type:'single',pg:[10],prompt:"When can the regular payday be delayed?",
+ choices:["Force majeure like natural disasters (pay immediately after)","When the owner is on vacation","When sales are low","When the employee asks"],ans:[0],why:"Only force majeure, and pay immediately after."},
+q88:{type:'single',pg:[23],prompt:"Why must wages be paid near the workplace?",
+ choices:["To avoid burdening employees","To save on bank fees","For tax purposes","For DOLE inspections"],ans:[0],why:"'Salary should be easy to claim.'"},
+q89:{type:'multi',need:2,pg:[23],prompt:"Which are valid conditions for payment of wages? (Choose 2)",
+ choices:["Paid on time","Paid in legal money/cash","Paid in company products","Paid in another city"],ans:[0,1],why:"On time, legal money/cash, near the workplace."},
+q90:{type:'single',pg:[18,'CS'],prompt:"Service charges must be distributed:",
+ choices:["Completely and equally to covered rank-and-file employees","Mostly to management","Only to the owner","50/50 owner and staff"],ans:[0],why:"RA 11360: 100% to covered employees, equally, based on hours/days worked. Not management."},
+q91:{type:'single',pg:['CS'],prompt:"Service charges are distributed at least:",
+ choices:["Twice a month (intervals of 16 days max)","Monthly","Yearly","Quarterly"],ans:[0],why:"Not less than once every two weeks or twice a month, intervals not exceeding 16 days."},
+q92:{type:'single',pg:[18],prompt:"Service charges are best described as:",
+ choices:["Indirect compensation in the service industry","A statutory gov't contribution","A tax","An SSS premium"],ans:[0],why:"Not a statutory contribution; a compensation-related benefit."},
+
+l26:{type:'learn',pg:[11,12],title:"13th Month Pay",
+ body:"A <b>mandatory benefit</b>: like a bonus, but <b>REQUIRED by law</b>.<br>= <b>1/12 of total basic salary</b> earned within the year.<br>Given <b>on or before December 24</b>.<br><b>Exempt (per notes):</b> <b>distressed employers</b> (losing substantial money), and non-profit organizations with a <b>40%+ income decline for 2 years</b>."},
+l27:{type:'learn',pg:[9,17,'CS'],title:"Service Incentive Leave (SIL)",
+ body:"<b>SIL</b> (Art. 95): mandatory <b>5 days leave with pay per year</b> for employees with <b>at least 1 year</b> of service. Use it for vacation, rest, emergencies.<br><b>Unused SIL → converted to cash</b> at year end, based on the salary rate at the date of conversion.<br><b>Not eligible:</b> government, managerial, field personnel, domestic helpers, establishments with <b>less than 10 employees</b> (for SIL this means <b>ANY</b> establishment, not just retail/service), and those <b>already enjoying 5+ days paid vacation leave</b>."},
+q93:{type:'single',pg:[11],prompt:"13th month pay equals:",
+ choices:["1/12 of total basic salary in the year","One month's gross pay including OT","½ month salary","13 days of salary"],ans:[0],why:"1/12 of total basic salary."},
+q94:{type:'single',pg:[11],prompt:"13th month pay must be given:",
+ choices:["On or before December 24","By January 15","By December 31","Anytime the employer wants"],ans:[0],why:"Given before December 24."},
+q95:{type:'single',pg:[12],prompt:"Which employer is EXEMPT from 13th month pay?",
+ choices:["A distressed employer losing substantial money","Any company with under 10 employees","BPO companies","Private schools"],ans:[0],why:"Per notes: distressed employers (and certain non-profits with 40%+ income decline for 2 years)."},
+q96:{type:'single',pg:[9],prompt:"The SIL benefit is:",
+ choices:["5 days paid leave per year after 1 year of service","7 days after 6 months","10 days after 1 year","3 days per year"],ans:[0],why:"5 days with pay per year, at least 1 year of service."},
+q97:{type:'single',pg:[9,'CS'],prompt:"Unused SIL at the end of the year:",
+ choices:["Is converted to cash","Is forfeited","Carries over forever","Goes to the union"],ans:[0],why:"Not exhausted → monetary equivalent, at the salary rate on the date of conversion."},
+q98:{type:'single',pg:[9,17,'CS'],prompt:"An employee already gets 7 days paid vacation leave. Are they also entitled to SIL?",
+ choices:["No, those with 5+ days paid VL are exempt","Yes, 5 more days","Yes, and it doubles to 12","Only as cash"],ans:[0],why:"Those enjoying vacation leave with pay of at least 5 days are exempt from SIL."},
+q99:{type:'single',pg:['CS'],prompt:"For SIL, exemption (b) on establishments with less than 10 employees applies to:",
+ choices:["Any establishment, not just retail/service","Only retail and service","Only agricultural","No one"],ans:[0],why:"Cheat sheet: (b) in SIL = any establishment, not limited to retail and service."},
+
+l28:{type:'learn',pg:[10,11],title:"Retirement Pay",
+ body:"<ul><li><b>Optional:</b> age <b>60+</b> (not beyond 65), at least <b>5 years</b> of service.</li><li><b>Compulsory:</b> age <b>65</b>, same requirements.</li></ul>Benefit: <b>½ month salary per year of service</b>.<br><b>½ month = 22.5 days</b> = 15 days salary + 5 days SIL + 1/12 of 13th month (2.5 days).<br>Formula: <b>daily rate × 22.5 × years</b>.<br><b>Exempt:</b> government (Civil Service), domestic helpers and personal service workers, retail/service/agricultural establishments with <b>10 or fewer</b> employees.<br><b>CBA/contract</b> benefits must <b>not be lower</b> than the Labor Code; if lower (even with employee contributions + interest), the <b>employer pays the difference</b>."},
+l29:{type:'learn',pg:[11],title:"Special Retirement Cases",
+ body:"<b>Paid by results:</b> based on <b>average daily salary</b> = total salary in the last 12 months ÷ actual days worked.<br><b>Part-time workers:</b> also ½ month per year IF there's no retirement plan, they're at least <b>60</b>, and worked at least <b>5 years</b>.<br><b>Underground/surface miners:</b> optional <b>50 to 60</b>, mandatory <b>60</b>, at least 5 years as a miner.<br><b>Racehorse jockeys:</b> mandatory <b>55</b>, at least 5 years, must have paid <b>additional SSS premium</b>."},
+q100:{type:'single',pg:[10],prompt:"Optional retirement age:",
+ choices:["60 (but not beyond 65)","55","50","65"],ans:[0],why:"Optional: 60+, not beyond 65."},
+q101:{type:'single',pg:[10],prompt:"Compulsory retirement age:",
+ choices:["65","60","70","55"],ans:[0],why:"Compulsory retirement is at 65."},
+q102:{type:'single',pg:[10],prompt:"Minimum service required for retirement pay:",
+ choices:["5 years","1 year","10 years","15 years"],ans:[0],why:"At least 5 years of service."},
+q103:{type:'multi',need:3,pg:[10,11],prompt:"The 22.5 days of '½ month salary' is made of: (Choose 3)",
+ choices:["15 days salary","5 days SIL","1/12 of 13th month pay (2.5 days)","7 days paternity leave"],ans:[0,1,2],why:"15 + 5 + 2.5 = 22.5 days."},
+q104:{type:'single',pg:[11],prompt:"Compulsory retirement age for underground miners:",
+ choices:["60","65","55","50"],ans:[0],why:"Miners: optional 50 to 60, mandatory 60."},
+q105:{type:'single',pg:[11],prompt:"Mandatory retirement age for racehorse jockeys:",
+ choices:["55","60","65","50"],ans:[0],why:"Jockeys: mandatory 55, 5 years, additional SSS premium."},
+q106:{type:'single',pg:[11],prompt:"The CBA's retirement benefit is LOWER than what the Labor Code requires. What happens?",
+ choices:["The employer pays the difference","The CBA prevails","The employee loses the difference","DOLE pays the gap"],ans:[0],why:"CBA benefits can't be lower; the employer must pay the shortage."},
+q107:{type:'single',pg:[10],prompt:"Which employer is EXEMPT from retirement pay?",
+ choices:["A retail store with 8 employees","A BPO with 200 employees","A bank","A 50-worker factory"],ans:[0],why:"Retail, service, agricultural establishments with 10 or fewer employees are exempt."},
+q108:{type:'single',pg:[11],prompt:"Retirement pay of a worker paid by results is based on:",
+ choices:["Average daily salary (last 12 months ÷ actual days worked)","Minimum wage","Their highest single day","The CEO's salary"],ans:[0],why:"Total salary in the last 12 months ÷ actual number of days worked."},
+
+l30:{type:'learn',pg:[12],title:"Separation Pay",
+ body:"Money given when terminated due to <b>authorized causes</b>: business-related or uncontrollable, <b>NOT the employee's fault</b>. If the employee did something wrong (misconduct) → <b>no separation pay</b>.<ul><li>Installation of labor-saving devices: <b>1 month/year</b></li><li>Redundancy: <b>1 month/year</b></li><li>Retrenchment (to prevent losses): <b>½ month/year</b></li><li>Closure of business: <b>½ month/year</b></li><li>Disease/illness: <b>½ month/year</b></li></ul>Also: impossible reinstatement (per Supreme Court), and security guards <b>without assignment for 6 months</b> (DOLE rules)."},
+q109:{type:'single',pg:[12],prompt:"Separation pay is given when termination is due to:",
+ choices:["Authorized causes (not the employee's fault)","Serious misconduct","Voluntary resignation","Willful disobedience"],ans:[0],why:"Authorized causes = business-related. Misconduct = no separation pay."},
+q110:{type:'single',pg:[12],prompt:"Which authorized cause gives 1 MONTH per year of service?",
+ choices:["Redundancy","Retrenchment","Closure of business","Disease"],ans:[0],why:"1 month: labor-saving devices and redundancy. ½ month: retrenchment, closure, disease."},
+q111:{type:'single',pg:[12],prompt:"Retrenchment to prevent losses gives:",
+ choices:["½ month per year","1 month per year","Nothing","2 months per year"],ans:[0],why:"Retrenchment = ½ month per year of service."},
+q112:{type:'single',pg:[12],prompt:"Security guards may get separation pay if left without assignment for:",
+ choices:["6 months","1 month","3 months","12 months"],ans:[0],why:"DOLE rules: security guards without assignment for 6 months."},
+m5:{type:'match',pg:[9,10,11,12],prompt:"Match the money",pairs:[["13th month","1/12 of basic salary"],["SIL","5 days paid leave"],["Retirement","½ month per year"],["Redundancy","1 month per year"],["Retrenchment","½ month per year"]],
+ why:"Redundancy and labor-saving devices = 1 month. Retrenchment, closure, disease = ½ month."},
+
+/* ================= UNIT 6: LEAVES & BENEFITS ================= */
+l31:{type:'learn',pg:[12,13],title:"Maternity Leave (RA 11210)",say:"Leave unit. Lots of numbers here, go slow.",
+ body:"<b>RA 11210, Expanded Maternity Leave Law.</b> Maternity benefits for female employees through <b>SSS</b>.<br><b>Requirements:</b> at least <b>3 monthly contributions in the last 12 months</b>, and must <b>notify</b> the employer/SSS of the pregnancy.<br><b>Benefit:</b> based on <b>ADSC</b> (Average Daily Salary Credit).<ul><li><b>105 days</b>: live childbirth (normal or C-section)</li><li><b>120 days</b>: solo parents (Solo Parents' Welfare Act)</li><li><b>60 days</b>: miscarriage or emergency termination</li></ul>"},
+l32:{type:'learn',pg:[13],title:"Paternity Leave (RA 8187)",
+ body:"For <b>married male employees</b>: <b>7 days leave with full pay</b>.<br>Condition: for the <b>first 4 deliveries</b> of the <b>legitimate spouse</b>.<br>Law: <b>RA 8187</b> (June 11, 1996)."},
+q113:{type:'single',pg:[13],prompt:"Maternity leave for live childbirth (normal or C-section):",
+ choices:["105 days","60 days","120 days","78 days"],ans:[0],why:"105 days for live childbirth, normal or CS."},
+q114:{type:'single',pg:[13],prompt:"Maternity leave for solo parents:",
+ choices:["120 days","105 days","150 days","60 days"],ans:[0],why:"120 days under the Solo Parents' Welfare Act."},
+q115:{type:'single',pg:[13],prompt:"Leave for miscarriage or emergency termination:",
+ choices:["60 days","105 days","30 days","None"],ans:[0],why:"60 days."},
+q116:{type:'single',pg:[12,13],prompt:"SSS maternity benefit requires at least:",
+ choices:["3 monthly contributions in the last 12 months","12 contributions","6 months of contributions","1 year of service"],ans:[0],why:"At least 3 months paid in the last 12 months, plus notification."},
+q117:{type:'single',pg:[13],prompt:"The Expanded Maternity Leave Law is:",
+ choices:["RA 11210","RA 8187","RA 9710","RA 10361"],ans:[0],why:"RA 11210."},
+q118:{type:'single',pg:[13],prompt:"Paternity leave is:",
+ choices:["7 days full pay, married males, first 4 deliveries of legitimate spouse","14 days for any male","7 days, unlimited deliveries","105 days"],ans:[0],why:"RA 8187: 7 days with full pay, first 4 deliveries of the legitimate spouse."},
+q119:{type:'single',pg:[13],prompt:"The Paternity Leave Law is:",
+ choices:["RA 8187","RA 8972","RA 9262","RA 6727"],ans:[0],why:"RA 8187 (June 11, 1996)."},
+q120:{type:'single',pg:[13],prompt:"Maternity benefit amount is based on the:",
+ choices:["Average Daily Salary Credit (ADSC)","Husband's salary","Minimum wage","13th month pay"],ans:[0],why:"Benefit amount is based on ADSC."},
+
+l33:{type:'learn',pg:[13,14],title:"Magna Carta of Women (RA 9710)",
+ body:"Protects women's rights. Key rights: <b>no discrimination</b>, <b>protection from violence</b>, <b>equal opportunity</b>.<br>Also: security during disasters and calamities, equal participation in government and politics, equal treatment before the law, <b>equal access to education (no expulsion due to pregnancy)</b>, equal participation in sports, non-discrimination in military/police service, comprehensive health services, equal rights in marriage and family relations.<br><b>Special leave:</b> <b>2 months with full pay</b> for <b>gynecological surgery</b>, requires <b>6 months continuous service</b>."},
+q121:{type:'single',pg:[13,14],prompt:"Magna Carta special leave for gynecological surgery:",
+ choices:["2 months with full pay","10 days","7 days","105 days"],ans:[0],why:"2 months full pay."},
+q122:{type:'single',pg:[14],prompt:"Service required to avail of that special leave:",
+ choices:["6 months continuous service","1 year","3 months","None"],ans:[0],why:"Requires 6 months continuous service."},
+q123:{type:'single',pg:[13],prompt:"The Magna Carta of Women is:",
+ choices:["RA 9710","RA 9262","RA 11210","RA 8187"],ans:[0],why:"RA 9710. (RA 9262 is the VAWC law.)"},
+q124:{type:'single',pg:[13],prompt:"Which is a right under the Magna Carta of Women?",
+ choices:["Equal access to education, no expulsion due to pregnancy","Double 13th month pay","Free housing","Retirement at 50"],ans:[0],why:"Equal access to education is listed in the notes."},
+
+l34:{type:'learn',pg:[18,'CS'],title:"Solo Parent & VAWC Leave",
+ body:"<b>Solo parent leave (RA 8972, Solo Parents' Welfare Act):</b> <b>7 days with pay every year</b>. Forfeitable, noncumulative, <b>not convertible to cash</b>. Conditions: rendered <b>at least 6 months</b> of service, notified the employer, presented a <b>solo parent ID</b>.<br>Covers: widowed/separated/abandoned parents, spouse or family member of an OFW, unmarried mother/father, legal guardian, relatives within the 4th civil degree, pregnant woman providing sole care.<br><br><b>VAWC leave (RA 9262):</b> <b>10 days with full pay</b>, extendable when needed. Needs certification from the <b>barangay chairman, counselor, prosecutor, or clerk of court</b>. At the woman's option, every instance, <b>not cumulative</b>, <b>not convertible to cash</b>."},
+q125:{type:'single',pg:[18,'CS'],prompt:"Solo parent leave:",
+ choices:["7 days with pay per year","10 days","5 days","105 days"],ans:[0],why:"RA 8972: 7 days paid leave every year."},
+q126:{type:'single',pg:['CS'],prompt:"Service required for solo parent leave:",
+ choices:["At least 6 months","1 year","3 months","5 years"],ans:[0],why:"Rendered at least 6 months, notified employer, solo parent ID."},
+q127:{type:'single',pg:['CS'],prompt:"VAWC leave:",
+ choices:["10 days with full pay","7 days","2 months","5 days"],ans:[0],why:"RA 9262: 10 days with full pay, extendable when needed."},
+q128:{type:'single',pg:['CS'],prompt:"The VAWC leave law is:",
+ choices:["RA 9262","RA 9710","RA 8972","RA 10361"],ans:[0],why:"RA 9262 (Anti-Violence Against Women and Their Children)."},
+q129:{type:'multi',need:2,pg:['CS'],prompt:"About unused solo parent and VAWC leave, which are TRUE? (Choose 2)",
+ choices:["Not convertible to cash","Not cumulative","Converted to cash at year end","Carried over to next year"],ans:[0,1],why:"Both are noncumulative and not convertible to cash. (Unlike SIL, which converts to cash.)"},
+q130:{type:'single',pg:['CS'],prompt:"Who can certify a VAWC leave?",
+ choices:["Barangay chairman, counselor, prosecutor, or clerk of court","The HR manager","The union president","SSS"],ans:[0],why:"Certification from barangay chairman, counselor, prosecutor, or clerk in court."},
+
+l35:{type:'learn',pg:[14,15],title:"Kasambahay Law (RA 10361)",
+ body:"A <b>kasambahay</b> (domestic worker) does domestic work in an <b>employer's household</b>: yaya/nanny, cook, laundry person, housekeeper, gardener, <b>driver for private vehicles</b>.<br><b>Rights:</b> minimum wage (varies by region), max <b>8 hours/day</b> with OT pay if more (per notes), <b>1 day off/week (24 consecutive hours)</b>, <b>13th month after 1 month</b> of service, <b>5-day SIL</b> with pay, employer must <b>enroll in SSS, PhilHealth, Pag-IBIG</b>, contract <b>in writing</b> (English or Filipino).<br><b>Employers CANNOT:</b> withhold wages, confiscate IDs/personal documents, charge placement fees, abuse or mistreat.<br>A kasambahay may <b>resign anytime with 5 days notice</b>."},
+q131:{type:'single',pg:[14],prompt:"Which is a kasambahay?",
+ choices:["The family's private driver","A company bus driver","A hotel housekeeper","A restaurant cook"],ans:[0],why:"Domestic work in a household, including driver for private vehicles."},
+q132:{type:'single',pg:[14],prompt:"A kasambahay is entitled to 13th month pay after:",
+ choices:["1 month of service","1 year","6 months","Never"],ans:[0],why:"Entitled after 1 month of service."},
+q133:{type:'single',pg:[14],prompt:"A kasambahay's contract must be:",
+ choices:["In writing (English or Filipino)","Verbal is enough","Notarized in English only","Not required"],ans:[0],why:"Must be in writing, English or Filipino."},
+q134:{type:'single',pg:[14],prompt:"Which CAN the employer of a kasambahay do?",
+ choices:["Enroll them in SSS, PhilHealth, Pag-IBIG","Confiscate their IDs","Withhold wages","Charge a placement fee"],ans:[0],why:"Enrolling them is required. The rest are prohibited."},
+q135:{type:'single',pg:[15],prompt:"A kasambahay may resign anytime with:",
+ choices:["5 days notice","30 days notice","1 day notice","No notice"],ans:[0],why:"5 days notice."},
+q136:{type:'single',pg:[14],prompt:"Kasambahay service incentive leave:",
+ choices:["5 days annual SIL with pay","7 days","10 days","None"],ans:[0],why:"Batas Kasambahay: 5 days annual SIL with pay."},
+
+l36:{type:'learn',pg:[17,18],title:"SPP: SSS, PhilHealth, Pag-IBIG",
+ body:"<b>SPP = 'Sure Pay Provided'</b>.<br><b>SSS</b> (Social Security System): financial protection for <b>sickness, maternity, disability, retirement, death</b>. Covers all private sector employees; voluntary for self-employed/OFWs. Employee and employer each pay a portion, based on <b>monthly salary credit</b>. <b>Mandatory</b>; non-payment violates labor law.<br><b>PhilHealth</b>: <b>health insurance</b> for hospitalization, consultations, some procedures. Covers private and public employees, self-employed, OFWs, retirees. Shared contribution. Exam tip: <b>'your health safety net'</b>.<br><b>Pag-IBIG (HDMF)</b>: <b>housing loans</b>, savings program, emergency loans. All private employees; voluntary for self-employed. Employee pays a monthly %, <b>employer matches</b>."},
+q137:{type:'single',pg:[17],prompt:"SSS gives financial protection for:",
+ choices:["Sickness, maternity, disability, retirement, death","Housing loans only","Hospital bills only","13th month pay"],ans:[0],why:"SSS: sickness, maternity, disability, retirement, death."},
+q138:{type:'single',pg:[17],prompt:"The SSS contribution percentage depends on the:",
+ choices:["Monthly salary credit","Employee's age","Region","Union membership"],ans:[0],why:"Based on the monthly salary credit."},
+q139:{type:'single',pg:[18],prompt:"'Your health safety net' is:",
+ choices:["PhilHealth","SSS","Pag-IBIG","NCMB"],ans:[0],why:"PhilHealth = health insurance."},
+q140:{type:'single',pg:[18],prompt:"Housing loans come from:",
+ choices:["Pag-IBIG (HDMF)","PhilHealth","SSS","DOLE"],ans:[0],why:"Pag-IBIG: housing loans, savings, emergency loans."},
+q141:{type:'single',pg:[17],prompt:"Not paying SSS for a private employee is:",
+ choices:["A violation of labor law","OK if the employee agrees","OK for firms under 10 workers","Only required for managers"],ans:[0],why:"SSS is mandatory for all private employees."},
+q142:{type:'single',pg:[18],prompt:"For Pag-IBIG contributions:",
+ choices:["Employee pays a monthly %, employer matches","Employer pays everything","Employee pays everything","Gov't pays everything"],ans:[0],why:"Employee pays a percentage, employer matches."},
+m6:{type:'match',pg:[13,14,18,'CS'],prompt:"Match the leave",pairs:[["Maternity","105 days"],["Paternity","7 days, married male"],["Solo parent","7 days per year"],["VAWC","10 days"],["Magna Carta","2 months, surgery"]],
+ why:"Maternity 105 (120 solo, 60 miscarriage). Paternity 7. Solo parent 7. VAWC 10. Magna Carta 2 months."},
+
+/* ================= UNIT 7: HIRED, FIRED, DISPUTED ================= */
+l37:{type:'learn',pg:[15],title:"Types of Employment",say:"Last topic unit. Hired, fired, disputed.",
+ body:"<ol><li><b>Regular:</b> no fixed end date; full benefits (13th month, holiday pay, leave credits, security of tenure); dismissed only for <b>just or authorized causes</b>.</li><li><b>Probationary:</b> trial period of <b>max 6 months</b>; employer must inform employee of the <b>standards for regularization</b>; not regularized after 6 months → <b>deemed regular</b>.</li><li><b>Project / Fixed-term:</b> for a specific project or period; ends on completion or expiry; <b>no separation pay</b> if it ends naturally.</li><li><b>Seasonal:</b> peak seasons only (Christmas, harvest); same rights as project employees during the period.</li><li><b>Casual:</b> not regular, not project; short-term, non-continuous. If the work becomes <b>necessary and desirable</b> to the business → may become regular.</li></ol>"},
+q143:{type:'single',pg:[15],prompt:"Maximum probationary period:",
+ choices:["6 months","3 months","1 year","2 years"],ans:[0],why:"Probationary trial period: max 6 months."},
+q144:{type:'single',pg:[15],prompt:"A probationary employee keeps working past 6 months without being regularized. They are:",
+ choices:["Deemed a regular employee","Still probationary","A casual employee","Automatically terminated"],ans:[0],why:"Not regularized after 6 months → deemed regular."},
+q145:{type:'single',pg:[15],prompt:"Ends when the project is done; no separation pay if it ends naturally:",
+ choices:["Project / fixed-term","Regular","Probationary","Casual"],ans:[0],why:"Project/fixed-term employment."},
+q146:{type:'single',pg:[15],prompt:"Extra helpers hired only for the Christmas rush are:",
+ choices:["Seasonal employees","Regular employees","Managerial employees","Field personnel"],ans:[0],why:"Seasonal = peak seasons only (Christmas, harvest)."},
+q147:{type:'single',pg:[15],prompt:"A casual employee's work becomes necessary and desirable to the business. They:",
+ choices:["May become regular","Must be terminated","Become project employees","Become contractors"],ans:[0],why:"Necessary and desirable work → may become regular."},
+q148:{type:'single',pg:[15],prompt:"What must the employer tell a probationary employee?",
+ choices:["The standards for regularization","Their retirement date","The CBA posting dates","Their SSS number"],ans:[0],why:"Employer must inform the employee of the standards for regularization."},
+
+l38:{type:'learn',pg:[15,19],title:"Job Contracting vs Labor-Only",
+ body:"One of the <b>MOST IMPORTANT</b> CHRA topics.<br><b>Job contracting (LEGAL ✓):</b> company hires a contractor for specific work. The contractor has <b>substantial capital</b>, supplies <b>tools, equipment, materials</b>, is <b>independent</b>, and <b>pays wages and benefits</b> to its workers.<br><b>Labor-only contracting (ILLEGAL ✗):</b> contractor has <b>no capital</b>, <b>only supplies workers</b>, and the <b>principal controls how the work is done</b>. It violates labor laws, and the workers are considered <b>employees of the principal company</b>.<br><b>Legitimate contractor must have:</b> substantial capital, directly-employed workforce, contract-compliant work premises, tools/equipment/machinery, safe working conditions and proper compensation."},
+l39:{type:'learn',pg:[15,16],title:"Tests for Employment",
+ body:"<b>Four-fold test:</b><ol><li><b>Selection</b>: who chose the worker?</li><li><b>Payment of wages</b>: who pays?</li><li><b>Power of dismissal</b>: who can fire?</li><li><b>Control</b>: who controls HOW the work is done? <b>(Most important!)</b></li></ol><b>Control test:</b> does the employer control HOW work is done?<br><b>Economic dependency test:</b> is the worker dependent on the company for income?<br><b>Independent contractor test:</b> has their own business, substantial capital (tools, equipment), free from the employer's control except for results, follows labor laws for their own employees."},
+q149:{type:'single',pg:[19],prompt:"Labor-only contracting in the Philippines is:",
+ choices:["Illegal","Legal","Legal with a DOLE permit","Legal only for BPOs"],ans:[0],why:"Labor-only contracting is ILLEGAL in the Philippines."},
+q150:{type:'single',pg:[15,19],prompt:"The contractor supplies ONLY workers, has no tools or capital, and the principal controls the work. This is:",
+ choices:["Labor-only contracting","Job contracting","A private employment agency","A manning agency"],ans:[0],why:"No capital + only supplies workers + principal controls = labor-only (illegal)."},
+q151:{type:'single',pg:[15],prompt:"In labor-only contracting, the workers are considered employees of:",
+ choices:["The principal company","The contractor","DOLE","Nobody"],ans:[0],why:"Workers are considered employees of the principal."},
+q152:{type:'multi',need:3,pg:[19],prompt:"A legitimate contractor must have: (Choose 3)",
+ choices:["Substantial capital","A directly-employed workforce","Tools, equipment, machinery","The principal controlling how the work is done"],ans:[0,1,2],why:"Principal control is a sign of labor-only contracting."},
+q153:{type:'single',pg:[15,16],prompt:"The MOST important element of the four-fold test:",
+ choices:["Control: who controls HOW the work is done","Selection","Payment of wages","Power of dismissal"],ans:[0],why:"Control is the most important."},
+q154:{type:'single',pg:[15,16],prompt:"Which is NOT one of the four-fold test elements?",
+ choices:["Economic dependency","Selection","Payment of wages","Power of dismissal"],ans:[0],why:"Economic dependency is a separate test."},
+q155:{type:'single',pg:[16],prompt:"'Is the worker dependent on the company for income?' is the:",
+ choices:["Economic dependency test","Control test","Four-fold test","I-A-C-M test"],ans:[0],why:"That's the economic dependency test."},
+q156:{type:'single',pg:[15,16],prompt:"An independent contractor:",
+ choices:["Has their own business and capital, free from control except for results","Is controlled hour by hour","Has no tools","Is a PESO employee"],ans:[0],why:"Own business, substantial capital, free from control except results, follows labor laws for own employees."},
+
+l40:{type:'learn',pg:[11,15],title:"Security of Tenure & Causes",
+ body:"<b>Security of tenure (Art. 294):</b> every employee has the right <b>not to be dismissed without a valid reason</b> (just or authorized cause) <b>and proper due process</b>.<br>In <b>illegal dismissal</b> cases, the <b>employer must prove</b> the dismissal was valid. If the dismissal itself is <b>denied</b>, the <b>employee must first prove</b> they were actually dismissed.<br><b>Just causes</b> (employee's fault): serious misconduct, willful disobedience, gross negligence, etc.<br><b>Authorized causes</b> (business reasons): redundancy, retrenchment, closure."},
+l41:{type:'learn',pg:[23,25],title:"Serious Misconduct & Due Process",
+ body:"<b>Serious misconduct:</b> serious improper behavior related to work; a ground for dismissal.<br><b>Elements:</b> 1. <b>Serious</b> (grave offense) 2. <b>Related to work</b> (connected to duties) 3. <b>Employee becomes unfit</b> (employer loses trust/confidence).<br>Memory: <b>'Serious + Work-related + Unfit'</b>.<br><br><b>Due process</b>, the <b>two-notice rule</b>: 1. <b>Notice to explain</b> 2. <b>Notice of decision</b>. Plus an <b>opportunity to be heard</b>.",
+ ex:"An employee punches a supervisor during work → serious misconduct."},
+q157:{type:'single',pg:[11],prompt:"Security of tenure is found in Labor Code:",
+ choices:["Art. 294","Art. 6","Art. 86","Art. 124"],ans:[0],why:"Art. 294. (Art. 6 = coverage, Art. 86 = NSD, Art. 124 = AERW.)"},
+q158:{type:'single',pg:[11],prompt:"In an illegal dismissal case, who must prove the dismissal was valid?",
+ choices:["The employer","The employee","DOLE","The union"],ans:[0],why:"The employer must prove the dismissal is valid."},
+q159:{type:'single',pg:[11],prompt:"The employer DENIES dismissing anyone. The employee must first prove that:",
+ choices:["They were actually dismissed","They are a union member","They received 13th month","They are over 18"],ans:[0],why:"If dismissal is denied, the employee must first prove they were dismissed."},
+q160:{type:'single',pg:[15],prompt:"Which is a JUST cause for termination?",
+ choices:["Willful disobedience","Redundancy","Retrenchment","Closure of business"],ans:[0],why:"Just causes are the employee's fault. The rest are authorized causes."},
+q161:{type:'single',pg:[15],prompt:"Which is an AUTHORIZED cause?",
+ choices:["Redundancy","Serious misconduct","Gross negligence","Willful disobedience"],ans:[0],why:"Authorized = business reasons: redundancy, retrenchment, closure."},
+q162:{type:'single',pg:[23],prompt:"The 3 elements of serious misconduct:",
+ choices:["Serious, related to work, employee becomes unfit","Minor, personal, still fit","Late twice, absent once, warned","Off-duty, unrelated, private"],ans:[0],why:"'Serious + Work-related + Unfit.'"},
+q163:{type:'single',pg:[23],prompt:"An employee punches a supervisor during work. This is:",
+ choices:["Serious misconduct","An authorized cause","Redundancy","Constructive dismissal"],ans:[0],why:"The notes' real-life example of serious misconduct."},
+q164:{type:'single',pg:[25],prompt:"Due process in dismissal, in order:",
+ choices:["Notice to explain → Opportunity to be heard → Notice of decision","Notice of decision → Notice to explain → Hearing","Hearing → Notice of decision → Notice to explain","Notice of decision only"],ans:[0],why:"Two-notice rule: explain first, decision last, with a chance to be heard in between."},
+
+l42:{type:'learn',pg:[24,25],title:"The Labor Arbiter",
+ body:"A <b>Labor Arbiter</b> is a <b>quasi-judicial officer under the NLRC</b> who hears and decides labor disputes (illegal dismissal, money claims). Created under the <b>Labor Code (P.D. 442)</b>, administered under the <b>NLRC Rules of Procedure</b>. Think: the <b>'trial judge'</b> of labor cases.<br>Has <b>original and exclusive jurisdiction</b>: the <b>FIRST</b> authority that hears the case.<br><b>Cases handled:</b> A. <b>Illegal dismissal</b> (no just/authorized cause, no due process) B. <b>Money claims</b> (unpaid salaries, OT, holiday pay, separation pay, benefits) C. <b>Constructive dismissal</b> (forced to resign due to unbearable conditions) D. <b>Suspension/disciplinary disputes</b> when contested as illegal E. <b>Other</b>: employer-employee relationship issues, damages."},
+l43:{type:'learn',pg:[25],title:"What LAs Don't Handle & Appeals",
+ body:"<b>Labor Arbiters do NOT handle:</b> criminal cases (regular courts), pure civil disputes with no employer-employee relation, internal policy issues with no labor claim, cases under a voluntary arbitration agreement.<br><b>Path:</b> complaint → <b>Labor Arbiter</b> (NLRC Regional Arbitration Branch) → <b>NLRC Commission Proper</b> (appeal) → <b>Court of Appeals</b> → <b>Supreme Court</b>.<br><b>Role in HR:</b> LAs are the legal dispute stage. HR must ensure <b>due process</b> in termination, <b>proper documentation</b>, and <b>Labor Code standards</b>. HR mistakes often end up as Labor Arbiter cases."},
+q165:{type:'single',pg:[24],prompt:"A Labor Arbiter is a:",
+ choices:["Quasi-judicial officer under the NLRC","DOLE Secretary","Union leader","Supreme Court justice"],ans:[0],why:"Quasi-judicial officer under the NLRC."},
+q166:{type:'single',pg:[24],prompt:"Think of the Labor Arbiter as the ___ of labor cases.",
+ choices:["Trial judge","Final appeal court","Mediator","Prosecutor"],ans:[0],why:"'Trial judge': the FIRST authority that hears the case."},
+q167:{type:'single',pg:[24],prompt:"An employee is forced to resign due to unbearable working conditions. This is:",
+ choices:["Constructive dismissal","Redundancy","Voluntary resignation","Retrenchment"],ans:[0],why:"Constructive dismissal, which the Labor Arbiter handles."},
+q168:{type:'multi',need:2,pg:[24],prompt:"Which are money claims a Labor Arbiter handles? (Choose 2)",
+ choices:["Unpaid salaries","Overtime pay","A criminal theft case","A pure civil loan with no employment"],ans:[0,1],why:"Money claims: unpaid salaries, OT, holiday pay, separation pay, benefits."},
+q169:{type:'single',pg:[25],prompt:"Which case does a Labor Arbiter NOT handle?",
+ choices:["Criminal cases","Illegal dismissal","Money claims","Constructive dismissal"],ans:[0],why:"Criminal cases go to regular courts."},
+q170:{type:'single',pg:[25],prompt:"The correct appeal path:",
+ choices:["Labor Arbiter → NLRC Commission Proper → Court of Appeals → Supreme Court","Labor Arbiter → Supreme Court","NLRC → Labor Arbiter → CA","DOLE → Labor Arbiter → SC"],ans:[0],why:"LA → NLRC (appeal) → CA → SC."},
+q171:{type:'single',pg:[24],prompt:"The Labor Arbiter has what kind of jurisdiction over certain labor cases?",
+ choices:["Original and exclusive","Appellate only","Advisory only","Criminal"],ans:[0],why:"Original and exclusive: they're the first to hear the case."},
+
+l44:{type:'learn',pg:[19,20],title:"Risk Management",
+ body:"<b>Risk management</b>: identifying, analyzing, and controlling risks that may negatively affect an organization. In HR: preventing problems related to employees, legal issues, and workplace operations.<br><b>Purpose:</b> prevent losses (financial, legal, reputation), ensure compliance, protect employees and the organization, maintain smooth operations. In short: <b>'Avoid problems before they happen.'</b><br><b>Importance:</b> 1. Legal protection (avoid lawsuits) 2. Employee safety 3. Financial stability 4. Reputation protection 5. Better decision-making."},
+l45:{type:'learn',pg:[20,21],title:"Types of HR Risk & I-A-C-M",
+ body:"<ol><li><b>Compliance:</b> not following laws (no 13th month, no SSS/PhilHealth)</li><li><b>Operational:</b> problems in daily HR processes (poor hiring, wrong placement)</li><li><b>Health & Safety:</b> physical danger (unsafe conditions, no safety equipment)</li><li><b>Reputational:</b> damage to company image (harassment going viral, complaints online)</li><li><b>Financial:</b> loss of money (penalties, high turnover cost)</li><li><b>Strategic:</b> poor long-term decisions (unqualified leaders, no workforce planning)</li></ol><b>Process 'I-A-C-M':</b> <b>Identify</b> ('Ano ang possible problem?') → <b>Assess</b> ('Gaano kalaki ang impact?') → <b>Control/Mitigate</b> ('Paano iiwasan or babawasan?') → <b>Monitor</b> ('Effective ba ang solution?')",
+ ex:"The company doesn't clearly state termination rules → risk: an employee files an illegal dismissal case."},
+q172:{type:'single',pg:[19],prompt:"Risk management, in short:",
+ choices:["Avoid problems before they happen","Fix problems after lawsuits","Ignore small problems","Transfer risk to employees"],ans:[0],why:"'Avoid problems before they happen.'"},
+q173:{type:'single',pg:[20],prompt:"Not paying 13th month or SSS contributions is what kind of risk?",
+ choices:["Compliance risk","Strategic risk","Reputational risk","Health & safety risk"],ans:[0],why:"Not following laws = compliance risk."},
+q174:{type:'single',pg:[20],prompt:"A harassment issue goes viral online. What kind of risk?",
+ choices:["Reputational","Operational","Compliance","Strategic"],ans:[0],why:"Damage to company image = reputational."},
+q175:{type:'single',pg:[20],prompt:"Hiring unqualified leaders and lacking workforce planning:",
+ choices:["Strategic risk","Operational risk","Financial risk","Health & safety risk"],ans:[0],why:"Poor long-term decisions = strategic."},
+q176:{type:'single',pg:[20],prompt:"Poor hiring decisions and wrong employee placement:",
+ choices:["Operational risk","Strategic risk","Reputational risk","Financial risk"],ans:[0],why:"Problems in daily HR processes = operational."},
+q177:{type:'single',pg:[20,21],prompt:"Put the risk management process in order:",
+ choices:["Identify → Assess → Control/Mitigate → Monitor","Assess → Identify → Monitor → Control","Control → Identify → Assess → Monitor","Monitor → Assess → Identify → Control"],ans:[0],why:"I-A-C-M."},
+q178:{type:'single',pg:[21],prompt:"'Effective ba ang solution?' is which step?",
+ choices:["Monitor","Identify","Assess","Control/Mitigate"],ans:[0],why:"Step 4: Monitor."},
+q179:{type:'single',pg:[20],prompt:"Paying penalties for labor violations and high turnover cost:",
+ choices:["Financial risk","Strategic risk","Operational risk","Reputational risk"],ans:[0],why:"Loss of money = financial risk."},
+q180:{type:'single',pg:[21],prompt:"A company has no clear termination rules. The main risk:",
+ choices:["An employee files an illegal dismissal case","Higher electricity bills","Better reputation","Too many applicants"],ans:[0],why:"The notes' real-life HR example."},
+
+l46:{type:'learn',pg:[26],title:"Cascading Goals",
+ body:"<b>Cascading</b>: translating and aligning <b>organizational goals</b> into goals for <b>departments, teams, and individual employees</b>.<br>Company Goal → Department Goal → Team Goal → Individual Goal. Like a <b>waterfall</b>: ORGANIZATION → DEPARTMENT → TEAM → EMPLOYEE.<br><b>Purpose:</b> make sure employees at all levels work toward the <b>same organizational objectives</b>.<br><b>Helps:</b> align individual with org goals, clarify expectations, connect department/team objectives to strategy, improve coordination and accountability.<br><b>CASCADING = TOP → DOWN</b>."},
+q181:{type:'single',pg:[26],prompt:"Cascading is:",
+ choices:["Translating organizational goals into department, team, and individual goals","Employees setting company goals","Promoting from within","Firing from the bottom up"],ans:[0],why:"Organizational goals flow downward."},
+q182:{type:'single',pg:[26],prompt:"Cascading flows:",
+ choices:["Top → Down","Bottom → Up","Sideways","Randomly"],ans:[0],why:"CASCADING = TOP → DOWN."},
+q183:{type:'single',pg:[26],prompt:"Correct cascading order:",
+ choices:["Organization → Department → Team → Employee","Employee → Team → Department → Organization","Team → Organization → Employee → Department","Department → Employee → Organization → Team"],ans:[0],why:"Like a waterfall from the organization down to each employee."},
+q184:{type:'single',pg:[26],prompt:"The main purpose of cascading:",
+ choices:["Everyone works toward the same organizational objectives","Cut salaries","Increase overtime","Replace HR"],ans:[0],why:"Alignment across all levels."},
+m7:{type:'match',pg:[15,19,24,25,26],prompt:"Tap the matching pairs",pairs:[["Labor-only contracting","Illegal"],["Four-fold test","Control is key"],["Labor Arbiter","Trial judge"],["Two-notice rule","Explain, then decide"],["Cascading","Top to down"]],
+ why:"The unit in five pairs."},
+
+/* ================= UNIT 8: HARD MODE, PAYROLL MATH ================= */
+l47:{type:'learn',pg:[7,11,22,23,'CS'],title:"Formula Cheat Sheet",say:"Hard mode. Grab a calculator.",
+ body:"<b>Hourly rate</b> = daily rate ÷ 8.<br><b>Regular holiday:</b> ×1.0 unworked · ×2.0 worked · ×2.6 on rest day · double: ×3.0 worked, ×3.9 on rest day.<br><b>Special day:</b> ×1.3 worked · ×1.5 on rest day · double special on rest day ×1.95.<br><b>Rest day (ordinary):</b> ×1.3.<br><b>OT:</b> ordinary day hourly × 1.25 · premium day: hourly × day rate × 1.3.<br><b>NSD:</b> hours × hourly × 1.10 (the extra alone = hours × hourly × 0.10).<br><b>Retirement:</b> daily × 22.5 × years. <b>13th month:</b> total basic ÷ 12. <b>EEMR:</b> daily × factor ÷ 12."},
+h1:{type:'single',pg:[22],prompt:"Daily rate ₱500. Regular holiday, employee absent but qualified. Pay for the day?",
+ choices:["₱500","₱0","₱650","₱1,000"],ans:[0],why:"Unworked regular holiday = 100% → ₱500."},
+h2:{type:'single',pg:[22],prompt:"Daily rate ₱500. Employee WORKED on a regular holiday. Pay?",
+ choices:["₱1,000","₱650","₱1,300","₱500"],ans:[0],why:"500 × 2 = ₱1,000."},
+h3:{type:'single',pg:[22],prompt:"Daily rate ₱500. Worked on a regular holiday that's also the rest day. Pay?",
+ choices:["₱1,300","₱1,000","₱1,500","₱1,950"],ans:[0],why:"500 × 2.6 = ₱1,300."},
+h4:{type:'single',pg:[22,23],prompt:"Daily rate ₱500. Worked on a special non-working day. Pay?",
+ choices:["₱650","₱500","₱1,000","₱750"],ans:[0],why:"500 × 1.3 = ₱650."},
+h5:{type:'single',pg:[23,'CS'],prompt:"Daily rate ₱600. Worked on a special day that's also the rest day. Pay?",
+ choices:["₱900","₱780","₱1,560","₱600"],ans:[0],why:"600 × 1.5 = ₱900."},
+h6:{type:'single',pg:['CS'],prompt:"Daily rate ₱600. Worked on a double regular holiday. Pay?",
+ choices:["₱1,800","₱1,200","₱1,560","₱2,340"],ans:[0],why:"600 × 3.0 = ₱1,800."},
+h7:{type:'single',pg:['CS'],prompt:"Daily rate ₱600. Worked on a double regular holiday that's also the rest day. Pay?",
+ choices:["₱2,340","₱1,800","₱1,560","₱1,950"],ans:[0],why:"600 × 3.9 = ₱2,340."},
+h8:{type:'single',pg:[8],prompt:"Daily rate ₱600. Worked on the rest day (ordinary day, no holiday). Pay?",
+ choices:["₱780","₱600","₱660","₱1,200"],ans:[0],why:"600 × 1.3 = ₱780."},
+h9:{type:'single',pg:['CS'],prompt:"Daily rate ₱500. Worked on a double special day that's also the rest day. Pay?",
+ choices:["₱975","₱750","₱650","₱1,300"],ans:[0],why:"500 × 1.95 = ₱975."},
+h10:{type:'multi',need:2,pg:[22,'CS'],prompt:"Daily rate ₱500. Which situations pay exactly ₱1,000? (Choose 2)",
+ choices:["Worked a regular holiday","Unworked double regular holiday","Worked a special day","Worked the rest day"],ans:[0,1],why:"Worked regular = 200%. Unworked double regular = 200%. Special = ₱650, rest day = ₱650."},
+h11:{type:'single',pg:[7,'CS'],prompt:"Daily rate ₱640 (hourly ₱80). 2 hours OT on an ordinary day. OT pay?",
+ choices:["₱200","₱160","₱208","₱260"],ans:[0],why:"80 × 1.25 × 2 = ₱200."},
+h12:{type:'single',pg:['CS'],prompt:"Hourly ₱80. 2 hours OT on a rest day. OT pay?",
+ choices:["₱270.40","₱208","₱200","₱416"],ans:[0],why:"80 × 1.3 × 1.3 × 2 = ₱270.40."},
+h13:{type:'single',pg:['CS'],prompt:"Hourly ₱80. 2 hours OT on a regular holiday. OT pay?",
+ choices:["₱416","₱320","₱260","₱540.80"],ans:[0],why:"80 × 2.0 × 1.3 × 2 = ₱416. (This is the real math behind the notes' '200% + 30%'.)"},
+h14:{type:'single',pg:['CS'],prompt:"Hourly ₱80. 2 hours OT on a regular holiday that's also the rest day. OT pay?",
+ choices:["₱540.80","₱416","₱270.40","₱624"],ans:[0],why:"80 × 2.6 × 1.3 × 2 = ₱540.80."},
+h15:{type:'single',pg:['CS'],prompt:"Hourly ₱80. 2 hours OT on a special day that's also the rest day. OT pay?",
+ choices:["₱312","₱240","₱270.40","₱416"],ans:[0],why:"80 × 1.5 × 1.3 × 2 = ₱312."},
+h16:{type:'single',pg:[7,'CS'],prompt:"Hourly ₱80. Worked 10 PM to 2 AM on an ordinary day. Pay for those 4 hours including NSD?",
+ choices:["₱352","₱320","₱400","₱384"],ans:[0],why:"4 × 80 × 1.10 = ₱352."},
+h17:{type:'single',pg:[7],prompt:"Hourly ₱80. Worked the full 10 PM to 6 AM. How much is the NSD EXTRA alone?",
+ choices:["₱64","₱80","₱640","₱32"],ans:[0],why:"8 hours × 80 × 0.10 = ₱64."},
+h18:{type:'single',pg:[24],prompt:"Compressed work week of 10 hours × 4 days. Total weekly hours vs the normal 8 × 6?",
+ choices:["40 hours vs 48 hours","40 hours vs 40 hours","48 hours vs 48 hours","44 hours vs 48 hours"],ans:[0],why:"10 × 4 = 40. 8 × 6 = 48. Total weekly hours must still follow labor rules."},
+h19:{type:'single',pg:[11],prompt:"Daily rate ₱600, 10 years of service. Retirement pay?",
+ choices:["₱135,000","₱90,000","₱180,000","₱60,000"],ans:[0],why:"600 × 22.5 × 10 = ₱135,000."},
+h20:{type:'single',pg:[11],prompt:"Daily rate ₱800, 5 years of service. Retirement pay?",
+ choices:["₱90,000","₱60,000","₱120,000","₱45,000"],ans:[0],why:"800 × 22.5 × 5 = ₱90,000."},
+h21:{type:'single',pg:[11],prompt:"Worker paid by results earned ₱180,000 in the last 12 months over 300 days worked. Average daily salary for retirement?",
+ choices:["₱600","₱500","₱15,000","₱720"],ans:[0],why:"180,000 ÷ 300 = ₱600."},
+h22:{type:'single',pg:[11],prompt:"Total basic salary for the year: ₱240,000. 13th month pay?",
+ choices:["₱20,000","₱24,000","₱18,461.54","₱10,000"],ans:[0],why:"240,000 ÷ 12 = ₱20,000. Divide by 12, not 13."},
+h23:{type:'single',pg:[11],prompt:"Hired in July, earned ₱18,000 basic per month until December (₱108,000 total). 13th month pay?",
+ choices:["₱9,000","₱18,000","₱4,500","₱10,800"],ans:[0],why:"108,000 ÷ 12 = ₱9,000. It's 1/12 of what was actually earned."},
+h24:{type:'single',pg:['CS'],prompt:"Daily rate ₱600, daily-paid with 1 rest day a week. EEMR (monthly equivalent)?",
+ choices:["₱15,650","₱18,250","₱13,050","₱14,400"],ans:[0],why:"600 × 313 ÷ 12 = ₱15,650."},
+h25:{type:'single',pg:[12],prompt:"Monthly salary ₱20,000, 5 years of service, terminated due to REDUNDANCY. Separation pay?",
+ choices:["₱100,000","₱50,000","₱20,000","₱200,000"],ans:[0],why:"1 month per year: 20,000 × 5 = ₱100,000."},
+h26:{type:'single',pg:[12],prompt:"Same employee (₱20,000/month, 5 years), but terminated due to RETRENCHMENT. Separation pay?",
+ choices:["₱50,000","₱100,000","₱10,000","₱25,000"],ans:[0],why:"½ month per year: 10,000 × 5 = ₱50,000."},
+h27:{type:'single',pg:['CS'],prompt:"Employer underpaid an employee by ₱5,000. Under the penalty rule, how much must be paid to the employee?",
+ choices:["₱10,000","₱5,000","₱25,000","₱2,500"],ans:[0],why:"Pay double the unpaid: 5,000 × 2 = ₱10,000 (on top of possible fine and jail)."},
+h28:{type:'single',pg:[18,'CS'],prompt:"A restaurant collected ₱60,000 in service charges. 12 covered employees worked the same hours. Each gets?",
+ choices:["₱5,000","₱6,000","₱4,000","₱3,000"],ans:[0],why:"Distributed completely and equally: 60,000 ÷ 12 = ₱5,000."},
+h29:{type:'single',pg:[9,'CS'],prompt:"Daily rate ₱600, 5 unused SIL days at year end. Cash conversion?",
+ choices:["₱3,000","₱600","₱3,900","₱0, it's forfeited"],ans:[0],why:"5 × 600 = ₱3,000. Unused SIL converts to cash."},
+};
+
+/* Unit palette: green, purple, blue, gold, teal, pink, red, orange(hard) */
+const UNITS = [
+ {n:1,title:"Who's Who in Labor",sub:"Agencies, coverage, recruitment",color:"#58CC02",shade:"#58A700",
+  guide:[["DOLE","The 'boss': implements Labor Code, inspections"],["NWPC","Policy-maker for wages, under DOLE"],["RTWPB","One per region; sets min wage via Wage Orders"],["Art. 6","Gov't, int'l orgs w/ treaty immunity, water districts: not Labor Code"],["GOCC","Original charter → Civil Service; none → Labor Code"],["PRA / PEA / PESO","Recruits (local & OFW) / matches locally / free gov't office"]],
+  tip:"<b>Who pays the agency?</b> 'Employer requested, employer pays.' Applicants shouldn't be charged excessive fees.",
+  lessons:[{id:'L1',title:"The Big Three",items:['l1','l2','q1','q2','q3','q4','q5']},
+           {id:'L2',title:"Not Covered",items:['l3','l4','q6','q7','q8','q9','q10','q11']},
+           {id:'L3',title:"Agency Hunt",items:['l5','l6','q12','q13','q14','q15','q16','q17','m1']}]},
+ {n:2,title:"Union Life",sub:"Unions, elections, CBA, grievances",color:"#CE82FF",shade:"#A568CC",
+  guide:[["Certification election","Secret vote to pick the bargaining agent"],["Voters","Qualified (sure), Unqualified (managers), Optional (sealed envelope)"],["Bargaining unit","WHO is included"],["Bargaining agent","Winning union, only one that negotiates"],["Union status","Contending → Agent → Bargaining → Contracting"],["CBA posting","2 places, 5 days before ratification"]],
+  tip:"<b>Bystander Rule flag:</b> the notes say an uninvolved employee should not interfere. The actual Labor Code (Art. 271) says the <b>employer</b> is the bystander in a certification election and can't oppose it. Know both!",
+  lessons:[{id:'L4',title:"Form the Team",items:['l7','l8','q18','q19','q20','q21','q22','q23']},
+           {id:'L5',title:"Who's Inside",items:['l9','l10','q24','q25','q26','q27','q28','q29','q30','q31']},
+           {id:'L6',title:"Complaint Box",items:['l11','l12','q32','q33','q34','q35','q36','q37','m2']}]},
+ {n:3,title:"Clock In, Clock Out",sub:"Hours, breaks, OT, night shift, rest days",color:"#1CB0F6",shade:"#1899D6",
+  guide:[["Normal hours","8 hrs/day excl. meal; max 6 days/week"],["Meal break","60 min unpaid; shortened to ≥20 min = paid"],["NSD","10 PM to 6 AM, +10% per hour"],["OT","Ordinary +25%; premium day: day rate +30%"],["Rest day","24 consecutive hrs after 6 days; work = +30%"],["Compressed week","10 hrs × 4 days instead of 8 × 6"]],
+  tip:"<b>Exemption trap:</b> retail/service under 10 workers is exempt from holiday pay & SIL, but NOT from OT and premium pay. For NSD, the cutoff is not more than 5 workers.",
+  lessons:[{id:'L7',title:"Eight Is Enough",items:['l13','l14','q38','q39','q40','q41','q42','q43','q44']},
+           {id:'L8',title:"Night Owls & OT",items:['l15','l16','q45','q46','q47','q48','q49','q50','q51']},
+           {id:'L9',title:"Rest Day Rules",items:['l17','l18','q52','q53','q54','q55','q56','q57','q58','m3']}]},
+ {n:4,title:"Holiday Mode",sub:"Regular vs special days, the fine print",color:"#FFC800",shade:"#E5A500",
+  guide:[["Regular, unworked","100%"],["Regular, worked","200% (260% on rest day)"],["Double regular","200% / 300% / 390%"],["Special, unworked","No work, no pay"],["Special, worked","130% (150% on rest day)"],["Qualify","Worked or paid leave the day before"]],
+  tip:"<b>Flags:</b> the notes' 'Worked + OT = 200% + 30%' is shorthand: real OT is hourly × 2.0 × 1.3. On successive holidays, the DOLE handbook says absent-before + both unworked = no pay for either, while the notes say 1. May 12 Election Day was a one-time holiday, so it's skipped.",
+  lessons:[{id:'L10',title:"Regular Holidays",items:['l19','q59','q60','q61','q62','q63','q64']},
+           {id:'L11',title:"Special Days",items:['l20','q65','q66','q67','q68','q69','q70']},
+           {id:'L12',title:"Holiday Fine Print",items:['l21','q71','q72','q73','q74','q75','q76','m4']}]},
+ {n:5,title:"Show Me the Money",sub:"Wages, payday, 13th month, SIL, retirement, separation",color:"#2EC4B6",shade:"#1FA396",
+  guide:[["RA 6727","Wage Rationalization Act"],["Payday","At least twice a month, max 16 days apart"],["13th month","1/12 of basic salary, by Dec 24"],["SIL","5 days paid after 1 yr; unused → cash"],["Retirement","60 optional / 65 compulsory, 5 yrs, 22.5 days per year"],["Separation","1 month: redundancy, labor-saving. ½ month: retrenchment, closure, disease"]],
+  tip:"<b>22.5 days</b> = 15 days + 5 SIL + 2.5 (1/12 of 13th month). Peso figures like NCR ₱658 to ₱695 come from the notes and change with each new wage order.",
+  lessons:[{id:'L13',title:"Minimum Wage",items:['l22','l23','q77','q78','q79','q80','q81','q82','q83','q84']},
+           {id:'L14',title:"Payday & Service Charges",items:['l24','l25','q85','q86','q87','q88','q89','q90','q91','q92']},
+           {id:'L15',title:"13th Month & SIL",items:['l26','l27','q93','q94','q95','q96','q97','q98','q99']},
+           {id:'L16',title:"Retirement",items:['l28','l29','q100','q101','q102','q103','q104','q105','q106','q107','q108']},
+           {id:'L17',title:"Separation Pay",items:['l30','q109','q110','q111','q112','m5']}]},
+ {n:6,title:"Leaves & Benefits",sub:"Maternity, paternity, women, kasambahay, SPP",color:"#FF6FAE",shade:"#D9508E",
+  guide:[["Maternity (RA 11210)","105 days; 120 solo; 60 miscarriage"],["Paternity (RA 8187)","7 days, married male, first 4 deliveries"],["Magna Carta (RA 9710)","2 months surgery leave, 6 months service"],["Solo parent (RA 8972)","7 days/yr, 6 months service, ID"],["VAWC (RA 9262)","10 days full pay"],["Kasambahay (RA 10361)","13th month after 1 month, 5-day SIL, written contract"]],
+  tip:"<b>Kasambahay hours flag:</b> the notes say max 8 hours/day. RA 10361 itself is worded as at least 8 hours of total REST per day, so if a question says '8 hours rest', that's the law's version.",
+  lessons:[{id:'L18',title:"Baby Leave",items:['l31','l32','q113','q114','q115','q116','q117','q118','q119','q120']},
+           {id:'L19',title:"Magna Carta",items:['l33','q121','q122','q123','q124']},
+           {id:'L20',title:"Solo Parent & VAWC",items:['l34','q125','q126','q127','q128','q129','q130']},
+           {id:'L21',title:"Kasambahay",items:['l35','q131','q132','q133','q134','q135','q136']},
+           {id:'L22',title:"Sure Pay Provided",items:['l36','q137','q138','q139','q140','q141','q142','m6']}]},
+ {n:7,title:"Hired, Fired, Disputed",sub:"Employment types, contracting, dismissal, Labor Arbiter, risk",color:"#FF4B4B",shade:"#EA2B2B",
+  guide:[["Probationary","Max 6 months, then deemed regular"],["Labor-only","No capital, only workers, principal controls: ILLEGAL"],["Four-fold test","Selection, payment, dismissal, CONTROL"],["Due process","Notice to explain, hearing, notice of decision"],["Labor Arbiter","NLRC 'trial judge'; LA → NLRC → CA → SC"],["I-A-C-M","Identify, Assess, Control, Monitor"]],
+  tip:"<b>Most important CHRA topic:</b> job contracting vs labor-only. Look for capital, tools, independence, and who controls HOW the work is done.",
+  lessons:[{id:'L23',title:"Job Types",items:['l37','q143','q144','q145','q146','q147','q148']},
+           {id:'L24',title:"Contracting Clash",items:['l38','l39','q149','q150','q151','q152','q153','q154','q155','q156']},
+           {id:'L25',title:"You're Fired?",items:['l40','l41','q157','q158','q159','q160','q161','q162','q163','q164']},
+           {id:'L26',title:"Labor Arbiter",items:['l42','l43','q165','q166','q167','q168','q169','q170','q171']},
+           {id:'L27',title:"Risky Business",items:['l44','l45','q172','q173','q174','q175','q176','q177','q178','q179','q180']},
+           {id:'L28',title:"Cascading Goals",items:['l46','q181','q182','q183','q184','m7']}]},
+ {n:8,title:"Hard Mode: Payroll Math",sub:"Compute it like the exam does",color:"#FF9600",shade:"#CD7900",hard:true,
+  guide:[["Hourly","Daily ÷ 8"],["Holiday","×2.0 regular, ×1.3 special, ×1.3 rest day"],["OT","×1.25 ordinary; day rate × 1.3 on premium days"],["NSD","Hours × hourly × 1.10"],["Retirement","Daily × 22.5 × years"],["13th month","Total basic ÷ 12"]],
+  tip:"<b>Two-step trick:</b> for OT on a special/holiday, first apply the day's rate (×1.3, ×2.0, ×2.6), THEN ×1.3 for the overtime.",
+  lessons:[{id:'L29',title:"Holiday Math",items:['l47','h1','h2','h3','h4','h5','h6','h7','h8','h9','h10']},
+           {id:'L30',title:"OT & Night Math",items:['h11','h12','h13','h14','h15','h16','h17','h18']},
+           {id:'L31',title:"Retirement & 13th Math",items:['h19','h20','h21','h22','h23','h24']},
+           {id:'L32',title:"Separation & Misc Math",items:['h25','h26','h27','h28','h29']}]},
+];
+
+/* Number the review questions 1..N in lesson order (they feed the Final Boss) */
+(()=>{let n=0;UNITS.forEach(u=>{if(u.hard)return;u.lessons.forEach(l=>l.items.forEach(id=>{const it=ITEMS[id];if(it.type==='single'||it.type==='multi')it.src=++n;}))});})();
+
+const ALL_LESSONS = UNITS.flatMap(u=>u.lessons.map(l=>({...l,unit:u})));
+const REAL_IDS = Object.keys(ITEMS).filter(k=>ITEMS[k].src);
+const RT = CONFIG.realTotal || REAL_IDS.length;
+
+/* ============================================================
+   STATE / STORAGE
+   ============================================================ */
+const KEY=CONFIG.storageKey;
+let S = {xp:0,streak:0,lastDay:null,done:{},mistakes:Object.keys(ITEMS).filter(k=>ITEMS[k].missed),sound:true,bestBoss:null};
+try{const raw=localStorage.getItem(KEY); if(raw) S={...S,...JSON.parse(raw)};}catch(e){}
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
+const today=()=>new Date().toISOString().slice(0,10);
+function bumpStreak(){
+  const t=today(); if(S.lastDay===t) return;
+  const y=new Date(Date.now()-864e5).toISOString().slice(0,10);
+  S.streak = (S.lastDay===y)? S.streak+1 : 1; S.lastDay=t;
+}
+
+/* ============================================================
+   SOUND
+   ============================================================ */
+let AC=null;
+function tone(seq){
+  if(!S.sound) return;
+  try{
+    AC = AC || new (window.AudioContext||window.webkitAudioContext)();
+    let t=AC.currentTime;
+    seq.forEach(([f,d,type='sine',v=.15])=>{
+      const o=AC.createOscillator(),g=AC.createGain();
+      o.type=type;o.frequency.value=f;g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.001,t+d);
+      o.connect(g);g.connect(AC.destination);o.start(t);o.stop(t+d);t+=d*.7;
+    });
+  }catch(e){}
+}
+const sfx={ok:()=>tone([[784,.12],[1175,.25]]),no:()=>tone([[220,.18,'square',.06],[165,.28,'square',.06]]),
+  tap:()=>tone([[600,.05,'sine',.05]]),win:()=>tone([[523,.12],[659,.12],[784,.12],[1047,.4]])};
+
+/* ============================================================
+   SVG BITS
+   ============================================================ */
+function mascotSVG(){return `<svg class="mascot" viewBox="0 0 120 130" xmlns="http://www.w3.org/2000/svg">
+  <g stroke="#58A700" stroke-width="3" stroke-linecap="round"><line x1="60" y1="26" x2="34" y2="8"/><line x1="60" y1="26" x2="60" y2="4"/><line x1="60" y1="26" x2="86" y2="8"/></g>
+  <circle cx="34" cy="8" r="6" fill="#FFC800"/><circle cx="60" cy="5" r="6" fill="#1CB0F6"/><circle cx="86" cy="8" r="6" fill="#FF4B4B"/>
+  <ellipse cx="42" cy="122" rx="12" ry="6" fill="#58A700"/><ellipse cx="78" cy="122" rx="12" ry="6" fill="#58A700"/>
+  <rect x="12" y="24" width="96" height="96" rx="44" fill="#58A700"/>
+  <rect x="12" y="20" width="96" height="94" rx="44" fill="#58CC02"/>
+  <ellipse cx="60" cy="88" rx="30" ry="22" fill="#89E219"/>
+  <circle cx="40" cy="56" r="15" fill="#fff"/><circle cx="80" cy="56" r="15" fill="#fff"/>
+  <g class="m-norm"><circle cx="43" cy="58" r="7.5" fill="#4B4B4B"/><circle cx="83" cy="58" r="7.5" fill="#4B4B4B"/><circle cx="45.5" cy="55" r="2.5" fill="#fff"/><circle cx="85.5" cy="55" r="2.5" fill="#fff"/>
+    <path d="M50 80 Q60 88 70 80" stroke="#3E7D00" stroke-width="4" fill="none" stroke-linecap="round"/></g>
+  <g class="m-happy"><path d="M31 58 Q40 47 49 58" stroke="#4B4B4B" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M71 58 Q80 47 89 58" stroke="#4B4B4B" stroke-width="5" fill="none" stroke-linecap="round"/>
+    <path d="M46 76 Q60 96 74 76 Z" fill="#3E7D00"/><path d="M52 84 Q60 90 68 84" fill="#FF8FA3"/></g>
+  <g class="m-sad"><circle cx="40" cy="62" r="7" fill="#4B4B4B"/><circle cx="80" cy="62" r="7" fill="#4B4B4B"/><path d="M28 44 L48 48" stroke="#3E7D00" stroke-width="4" stroke-linecap="round"/><path d="M92 44 L72 48" stroke="#3E7D00" stroke-width="4" stroke-linecap="round"/>
+    <path d="M50 86 Q60 78 70 86" stroke="#3E7D00" stroke-width="4" fill="none" stroke-linecap="round"/></g>
+  <ellipse cx="26" cy="76" rx="6" ry="4" fill="#FF8FA3" opacity=".55"/><ellipse cx="94" cy="76" rx="6" ry="4" fill="#FF8FA3" opacity=".55"/>
+</svg>`}
+const ICON={
+ star:'<svg viewBox="0 0 24 24"><path fill="#fff" d="M12 2.5l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.3l-5.8 3.1 1.1-6.5L2.6 9.3l6.5-.9z"/></svg>',
+ check:'<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
+ bolt:'<svg viewBox="0 0 24 24"><path fill="#fff" d="M13.5 2L4 14h7l-1.5 8L20 10h-7z"/></svg>',
+ book:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 19V5"/></svg>',
+ okBig:'<svg viewBox="0 0 24 24" fill="none" stroke="#58A700" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
+ noBig:'<svg viewBox="0 0 24 24" fill="none" stroke="#EA2B2B" stroke-width="4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>',
+ heart:'<svg viewBox="0 0 24 24"><path fill="#FF4B4B" d="M12 21s-8.5-5.3-8.5-11.2A4.8 4.8 0 0 1 12 6.6a4.8 4.8 0 0 1 8.5 3.2C20.5 15.7 12 21 12 21z"/><ellipse cx="8" cy="9" rx="1.8" ry="1.2" fill="#fff" opacity=".6"/></svg>',
+ heartGray:'<svg viewBox="0 0 24 24"><path fill="#E5E5E5" d="M12 21s-8.5-5.3-8.5-11.2A4.8 4.8 0 0 1 12 6.6a4.8 4.8 0 0 1 8.5 3.2C20.5 15.7 12 21 12 21z"/></svg>',
+ inf:'<svg viewBox="0 0 24 24" fill="none" stroke="#1CB0F6" stroke-width="3" stroke-linecap="round"><path d="M7 8.5c-2 0-3.5 1.6-3.5 3.5S5 15.5 7 15.5c3.5 0 6.5-7 10-7 2 0 3.5 1.6 3.5 3.5S19 15.5 17 15.5c-3.5 0-6.5-7-10-7z"/></svg>',
+ fire:'<svg viewBox="0 0 24 24"><path fill="#FF9600" d="M12 2c1 3.5 5.5 5.6 5.5 11a5.5 5.5 0 0 1-11 0c0-2.4 1-4 2.2-5.2.2 1.6.9 2.7 2 3.2C10 8.4 10.6 4.6 12 2z"/><path fill="#FFC800" d="M12 12.5c.6 1.6 2.5 2.4 2.5 4.6a2.5 2.5 0 0 1-5 0c0-1.5.9-2.4 1.5-3 .2.7.5 1.1 1 1.2 0-1-.2-1.9 0-2.8z"/></svg>',
+ bolt2:'<svg viewBox="0 0 24 24"><path fill="#FFC800" d="M13.5 2L4 14h7l-1.5 8L20 10h-7z"/></svg>',
+ target:'<svg viewBox="0 0 24 24" fill="none" stroke="#58CC02" stroke-width="3"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1" fill="#58CC02"/></svg>',
+ clock:'<svg viewBox="0 0 24 24" fill="none" stroke="#1CB0F6" stroke-width="3" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>',
+ soundOn:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M17 9a4 4 0 0 1 0 6M19.5 6.5a8 8 0 0 1 0 11"/></svg>',
+ soundOff:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M17 9l5 6M22 9l-5 6"/></svg>',
+};
+function putMascots(root=document){root.querySelectorAll('[data-mascot]').forEach(el=>{el.innerHTML=mascotSVG();const m=el.querySelector('.mascot');m.classList.add(el.dataset.mascot||'idle');el.removeAttribute('data-mascot')})}
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
+const $=s=>document.querySelector(s);
+const PAGE_KEYS = Object.keys(PAGE_INFO).map(k=>k==='CS'?'CS':+k).sort((a,b)=>(a==='CS')-(b==='CS')||a-b);
+const pgName = k => k==='CS' ? 'Cheat sheet' : 'Page '+k;
+function pgLabel(it){
+  const p=it.pg||[]; const nums=p.filter(x=>x!=='CS'); const cs=p.includes('CS'); let s='';
+  if(nums.length) s=(nums.length>1?'Pages ':'Page ')+nums.join(', ');
+  if(cs) s+=(s?' + ':'')+'Cheat sheet';
+  return s;
+}
+const pgPill = it => it.pg ? `<span class="pill purple">${pgLabel(it)}</span>` : '';
+const pageItems = k => Object.keys(ITEMS).filter(id=>(ITEMS[id].pg||[]).includes(k));
+
+/* ============================================================
+   HOME
+   ============================================================ */
+const OFFS=[0,-70,-100,-70,0,70,100,70];
+function renderStatic(){
+  document.title=CONFIG.pageTitle; $('#cTag').textContent=CONFIG.courseTag; $('#cMod').textContent=CONFIG.moduleLabel;
+  $('#hTitle').textContent=CONFIG.title; $('#hBlurb').textContent=CONFIG.blurb; $('#bossTitle').textContent=CONFIG.bossTitle;
+  const hs=$('#hScore'); if(CONFIG.realScore!=null) hs.textContent=`Real quiz: ${CONFIG.realScore}/${RT}`; else hs.remove();
+}
+function renderHome(){
+  $('#sStreak').textContent=S.streak; $('#sXP').textContent=S.xp;
+  $('#soundBtn').innerHTML=S.sound?ICON.soundOn:ICON.soundOff;
+  const doneCount=ALL_LESSONS.filter(l=>S.done[l.id]!=null).length;
+  $('#lessonsDone').textContent=`${doneCount}/${ALL_LESSONS.length} lessons`;
+  const covN=PAGE_KEYS.filter(k=>pageItems(k).some(id=>ITEMS[id].type!=='learn')).length;
+  $('#covBtn').textContent=`✓ Pages covered: ${covN}/${PAGE_KEYS.length}`;
+  const nextId=(ALL_LESSONS.find(l=>S.done[l.id]==null)||{}).id;
+  let k=0;
+  $('#units').innerHTML=UNITS.map(u=>`
+    <section class="unit">
+      <div class="unit-banner" style="background:${u.color}">
+        <div><div class="u-label">Unit ${u.n}</div><div class="u-title">${u.title}</div><div style="font-size:14px;opacity:.9;margin-top:2px">${u.sub}</div></div>
+        <button class="guide-btn" style="background:${u.shade}" data-guide="${u.n}">${ICON.book}<span>Guide</span></button>
+      </div>
+      <div class="path">${u.lessons.map(l=>{const off=OFFS[k++%OFFS.length];const done=S.done[l.id]!=null;const cur=l.id===nextId;
+        return `<div class="node-wrap" style="transform:translateX(${off}px)">
+          ${cur?`<div class="start-bubble" style="color:${u.color}">Start</div>`:''}
+          <button class="node ${done?'done':''}" data-lesson="${l.id}" style="background:${u.color};box-shadow:0 7px 0 ${u.shade}">
+            ${cur?'<span class="ring"></span>':''}${done?ICON.check:(u.hard?ICON.bolt:ICON.star)}</button>
+          <div class="node-label">${l.title}${done?`<br><span style="color:var(--gold-d)">Best ${S.done[l.id]}%</span>`:''}</div>
+        </div>`}).join('')}</div>
+    </section>`).join('');
+  const realTxt = CONFIG.realScore!=null ? ` Beat your ${CONFIG.realScore}/${RT}.` : '';
+  $('#bossSub').textContent = (S.bestBoss!=null ? `Best: ${S.bestBoss}/${REAL_IDS.length}. ` : '') + `All ${REAL_IDS.length} ${CONFIG.bossNoun||'questions'}, shuffled. No re-tries.` + realTxt + ' Short on time? Quick 30 picks 30 at random.';
+  const fab=$('#fab');
+  if(S.mistakes.length){fab.classList.remove('hidden');$('#fabBtn').textContent=`Practice mistakes (${S.mistakes.length})`}else fab.classList.add('hidden');
+  putMascots();
+}
+document.addEventListener('click',e=>{
+  const g=e.target.closest('[data-guide]'); if(g){openGuide(+g.dataset.guide);return}
+  const n=e.target.closest('[data-lesson]');
+  document.querySelectorAll('.popover').forEach(p=>p.remove());
+  document.querySelectorAll('.node-wrap.open').forEach(w=>w.classList.remove('open'));
+  if(n){
+    sfx.tap();
+    const l=ALL_LESSONS.find(x=>x.id===n.dataset.lesson);
+    const pop=document.createElement('div');pop.className='popover';pop.style.background=l.unit.color;pop.style.color=l.unit.color;
+    const xp=l.items.length*10;
+    pop.innerHTML=`<h3 style="color:#fff">${l.title}</h3><p style="color:#fff">${l.items.length} exercises · up to +${xp+20} XP</p><button class="btn">${S.done[l.id]!=null?'Practice again':'Start'}</button>`;
+    pop.querySelector('.btn').onclick=ev=>{ev.stopPropagation();startLesson({mode:'lesson',lesson:l,items:l.items})};
+    n.parentElement.appendChild(pop);n.parentElement.classList.add('open');
+    const r=pop.getBoundingClientRect(); if(r.bottom>innerHeight-90) scrollBy({top:r.bottom-innerHeight+110,behavior:'smooth'});
+  }
+});
+$('#soundBtn').onclick=()=>{S.sound=!S.sound;save();renderHome();sfx.tap()};
+$('#bossBtn').onclick=()=>startLesson({mode:'exam',title:'Final Boss',items:shuffle(REAL_IDS)});
+$('#quickBtn').onclick=()=>startLesson({mode:'exam',quick:true,title:'Quick Boss',items:shuffle(REAL_IDS).slice(0,30)});
+$('#covBtn').onclick=e=>{e.stopPropagation();openCoverage()};
+$('#trBtn').onclick=e=>{e.stopPropagation();openTransfer()};
+$('#fabBtn').onclick=()=>startLesson({mode:'mistakes',title:'Mistakes',items:shuffle(S.mistakes)});
+
+function openGuide(n){
+  const u=UNITS.find(x=>x.n===n);
+  const ov=$('#overlay');
+  ov.innerHTML=`<div class="modal-bg"><div class="modal">
+    <div class="pill" style="background:${u.color};color:#fff">Unit ${u.n} guidebook</div>
+    <h2 style="margin-top:10px">${u.title}</h2><div class="msub">${u.sub}</div>
+    ${u.guide.map(([t,d])=>`<div class="gb-item"><div class="gb-term" style="color:${u.shade}">${t}</div><div class="gb-def">${d}</div></div>`).join('')}
+    <div class="tip">${u.tip}</div>
+    <button class="btn wide" id="gClose">Got it</button></div></div>`;
+  const close=()=>ov.innerHTML='';
+  ov.querySelector('#gClose').onclick=close;
+  ov.querySelector('.modal-bg').onclick=e=>{if(e.target.classList.contains('modal-bg'))close()};
+}
+
+const CODE_PREFIX='QQ1.';
+function progressCode(){
+  const data={v:1,k:KEY,s:{xp:S.xp,streak:S.streak,lastDay:S.lastDay,done:S.done,mistakes:S.mistakes,bestBoss:S.bestBoss}};
+  return CODE_PREFIX+btoa(unescape(encodeURIComponent(JSON.stringify(data))));
+}
+function readCode(txt){
+  const t=(txt||'').replace(/\s+/g,'');
+  if(!t) throw new Error('Paste a progress code first.');
+  if(!t.startsWith(CODE_PREFIX)) throw new Error("That doesn't look like a progress code.");
+  let o; try{o=JSON.parse(decodeURIComponent(escape(atob(t.slice(CODE_PREFIX.length)))))}catch(e){throw new Error('This code is incomplete or damaged. Copy the whole thing again.')}
+  if(!o||o.k!==KEY||!o.s) throw new Error('This code is from a different reviewer.');
+  const s=o.s, ids=new Set(ALL_LESSONS.map(l=>l.id)), done={};
+  Object.entries(s.done||{}).forEach(([k,v])=>{if(ids.has(k)&&typeof v==='number')done[k]=Math.max(0,Math.min(100,v))});
+  return {xp:Math.max(0,+s.xp||0),streak:Math.max(0,+s.streak||0),lastDay:typeof s.lastDay==='string'?s.lastDay:null,done,
+    mistakes:(Array.isArray(s.mistakes)?s.mistakes:[]).filter(id=>ITEMS[id]&&ITEMS[id].type!=='learn'),
+    bestBoss:(s.bestBoss==null?null:Math.max(0,+s.bestBoss||0))};
+}
+function openTransfer(){
+  const ov=$('#overlay'); const code=progressCode();
+  ov.innerHTML=`<div class="modal-bg"><div class="modal">
+    <div class="pill blue">Transfer progress</div>
+    <h2 style="margin-top:10px">Move your progress</h2>
+    <div class="msub">Copy your code on this device, then paste it on the other one. XP, streak, finished lessons, best boss score and mistakes all come along.</div>
+    <div class="tr-label">1. Your progress code</div>
+    <textarea class="code-box" id="myCode" readonly>${code}</textarea>
+    <div class="tr-row"><button class="btn blue" id="copyCode">Copy code</button></div>
+    <div class="tr-label">2. Load a code from another device</div>
+    <textarea class="code-box" id="inCode" placeholder="Paste a progress code here"></textarea>
+    <div class="tr-row"><button class="btn ghost" id="pasteCode">Paste</button><button class="btn" id="loadCode">Load</button></div>
+    <div class="tr-msg" id="trMsg"></div>
+    <div id="trConfirm"></div>
+    <button class="btn ghost gray wide" id="tClose">Close</button></div></div>`;
+  const msg=(t,ok)=>{const m=ov.querySelector('#trMsg');m.textContent=t;m.className='tr-msg '+(ok?'ok':'err')};
+  const close=()=>ov.innerHTML='';
+  ov.querySelector('#tClose').onclick=close;
+  ov.querySelector('.modal-bg').onclick=e=>{if(e.target.classList.contains('modal-bg'))close()};
+  const my=ov.querySelector('#myCode'), inp=ov.querySelector('#inCode');
+  my.onclick=()=>my.select();
+  ov.querySelector('#copyCode').onclick=()=>{
+    const fallback=()=>{my.focus();my.select();let ok=false;try{ok=document.execCommand('copy')}catch(e){}
+      ok?msg('Copied! Now paste it on your other device.',true):msg('Copy got blocked here. The code is selected, so long-press it and choose Copy.',false)};
+    try{navigator.clipboard.writeText(code).then(()=>msg('Copied! Now paste it on your other device.',true)).catch(fallback)}catch(e){fallback()}
+  };
+  ov.querySelector('#pasteCode').onclick=()=>{
+    const blocked=()=>{inp.focus();msg('Your browser blocked the Paste button here. Long-press the box and choose Paste, then tap Load.',false)};
+    try{navigator.clipboard.readText().then(t=>{if(!t){blocked();return}inp.value=t.trim();msg('Pasted. Tap Load.',true)}).catch(blocked)}catch(e){blocked()}
+  };
+  ov.querySelector('#loadCode').onclick=()=>{
+    const box=ov.querySelector('#trConfirm'); box.innerHTML='';
+    let s; try{s=readCode(inp.value)}catch(e){msg(e.message,false);return}
+    msg('',true);
+    const n=Object.keys(s.done).length;
+    box.innerHTML=`<div class="tr-confirm">This code has <b>${s.xp} XP</b>, <b>${n}/${ALL_LESSONS.length} lessons</b> done, a <b>${s.streak}-day streak</b>${s.bestBoss!=null?`, best boss <b>${s.bestBoss}/${REAL_IDS.length}</b>`:''} and <b>${s.mistakes.length}</b> mistakes to practice.<br>It will <b>replace</b> the progress on this device.
+      <div class="tr-row"><button class="btn gold" id="trYes">Replace my progress</button><button class="btn ghost gray" id="trNo">Cancel</button></div></div>`;
+    box.querySelector('#trNo').onclick=()=>box.innerHTML='';
+    box.querySelector('#trYes').onclick=()=>{S={...S,...s};save();renderHome();box.innerHTML='';
+      ov.querySelector('#myCode').value=progressCode();msg('Progress loaded! You can close this.',true);sfx.win()};
+  };
+}
+function openCoverage(){
+  const ov=$('#overlay');
+  const rows=PAGE_KEYS.map(k=>{
+    const ids=pageItems(k), qs=ids.filter(i=>ITEMS[i].type!=='learn'), ls=ids.filter(i=>ITEMS[i].type==='learn');
+    const lessons=ALL_LESSONS.filter(l=>l.items.some(i=>ids.includes(i))).map(l=>l.title);
+    const ok=qs.length>0;
+    return `<div class="cov-item">
+      <div class="cov-head"><div class="cov-pg">${ok?`<span class="ok">${ICON.check}</span>`:'<span class="bad"></span>'}${pgName(k)}</div>
+      <div class="cov-cnt">${qs.length} question${qs.length===1?'':'s'} · ${ls.length} card${ls.length===1?'':'s'}</div></div>
+      <div class="cov-topics">${PAGE_INFO[k]}</div>
+      <div class="cov-lessons">${lessons.map(t=>`<span>${t}</span>`).join('')}</div>
+      ${ok?`<button class="btn blue cov-go" data-page="${k}">Practice ${pgName(k).toLowerCase()}</button>`:''}
+    </div>`}).join('');
+  const covered=PAGE_KEYS.filter(k=>pageItems(k).some(i=>ITEMS[i].type!=='learn')).length;
+  ov.innerHTML=`<div class="modal-bg"><div class="modal">
+    <div class="pill green">Page coverage</div>
+    <h2 style="margin-top:10px">Every page, accounted for</h2>
+    <div class="msub">Each page of the notes, what's on it, and which lessons quiz it. Tap Practice to drill just that page.</div>
+    <div class="cov-sum">${covered}/${PAGE_KEYS.length} covered (26 pages + cheat sheet) · ${REAL_IDS.length} review questions · ${Object.values(ITEMS).filter(i=>i.type==='learn').length} learn cards</div>
+    ${rows}
+    <button class="btn wide" id="cClose">Close</button></div></div>`;
+  const close=()=>ov.innerHTML='';
+  ov.querySelector('#cClose').onclick=close;
+  ov.querySelector('.modal-bg').onclick=e=>{if(e.target.classList.contains('modal-bg'))close()};
+  ov.querySelectorAll('[data-page]').forEach(b=>b.onclick=()=>{
+    const k=b.dataset.page==='CS'?'CS':+b.dataset.page; const ids=pageItems(k);
+    const learns=ids.filter(i=>ITEMS[i].type==='learn'), qs=ids.filter(i=>ITEMS[i].type!=='learn');
+    close(); startLesson({mode:'page',title:pgName(k),items:[...learns,...shuffle(qs)]});
+  });
+}
+
+/* ============================================================
+   LESSON ENGINE
+   ============================================================ */
+let L=null;
+function startLesson(cfg){
+  document.querySelectorAll('.popover').forEach(p=>p.remove());
+  L={...cfg,queue:cfg.items.slice(),unique:cfg.items.length,graded:cfg.items.filter(i=>ITEMS[i].type!=='learn').length,cleared:0,first:{},hearts:cfg.mode==='exam'?Infinity:5,
+     combo:0,maxCombo:0,xp:0,t0:Date.now(),state:'idle',cur:null,examRight:0,examWrong:[]};
+  $('#lesson').classList.remove('hidden');document.body.style.overflow='hidden';
+  next();
+}
+function updateHead(){
+  $('#barFill').style.width=Math.max(4,(L.cleared/L.unique)*100)+'%';
+  const h=$('#lHearts');
+  if(L.hearts===Infinity){h.className='l-hearts inf';h.innerHTML=ICON.inf}
+  else{h.className='l-hearts';h.innerHTML=(L.hearts>0?ICON.heart:ICON.heartGray)+`<span>${L.hearts}</span>`}
+}
+function next(){
+  if(!L.queue.length){return finish()}
+  const id=L.queue.shift(); const it=ITEMS[id];
+  L.cur={id,it,sel:new Set(),order:null};
+  L.state='idle'; updateHead();
+  const foot=$('#foot');foot.className='l-foot';$('#fb').innerHTML='';
+  const btn=$('#mainBtn');btn.textContent='Check';btn.disabled=true;btn.className='btn';btn.classList.toggle('hidden',it.type==='match');
+  const retry = L.first[id]===false;
+  const comboHTML = L.combo>=2?`<div class="combo pop">${ICON.fire}${L.combo} in a row</div>`:`<div class="combo"></div>`;
+  const tags = `<div class="q-tag">
+      ${retry?'<span class="pill red">Fix this mistake</span>':''}
+      ${it.missed?'<span class="pill red">Missed on real quiz</span>':''}
+      ${(it.src&&CONFIG.srcPill)?`<span class="pill blue">${CONFIG.srcPill}${it.src}</span>`:(id.startsWith('h')?'<span class="pill gold">Payroll math</span>':'')}${pgPill(it)}
+    </div>`;
+  const qa=$('#qArea');
+  if(it.type==='learn'){
+    L.state='learn'; btn.textContent='Got it'; btn.disabled=false; btn.classList.remove('hidden');
+    qa.innerHTML=`<div class="combo"></div><div class="q-tag"><span class="pill green">New concept</span>${pgPill(it)}</div>
+      <div class="speaker"><div class="mascot-wrap" data-mascot="idle"></div><div class="bubble">${it.say||"Here's something new. Read it, then I'll quiz you!"}</div></div>
+      <div class="learn"><h2>${it.title}</h2><div class="body">${it.body}</div>${it.ex?`<div class="ex">${it.ex}</div>`:''}</div>`;
+    putMascots(qa); $('.l-body').scrollTop=0; return;
+  }
+  if(it.type==='match'){
+    const left=shuffle(it.pairs.map((p,i)=>({i,t:p[0]}))), right=shuffle(it.pairs.map((p,i)=>({i,t:p[1]})));
+    L.cur.match={pick:null,left:0,mistakes:0,found:0};
+    qa.innerHTML=`${comboHTML}${tags}<div class="q-title">${it.prompt}</div>
+      <div class="match"><div class="col">${left.map(x=>`<button class="tile term" data-side="L" data-i="${x.i}">${x.t}</button>`).join('')}</div>
+      <div class="col">${right.map(x=>`<button class="tile" data-side="R" data-i="${x.i}">${x.t}</button>`).join('')}</div></div>`;
+    qa.querySelectorAll('.tile').forEach(t=>t.onclick=()=>matchTap(t));
+  }else{
+    const order=shuffle(it.choices.map((_,i)=>i)); L.cur.order=order;
+    const label = it.type==='multi'?`Select ${it.need} answers`:'Select the correct answer';
+    qa.innerHTML=`${comboHTML}${tags}<div class="q-type">${label}</div>
+      <div class="speaker"><div class="mascot-wrap" data-mascot="idle"></div><div class="bubble">${it.prompt}</div></div>
+      <div class="choices">${order.map((oi,k)=>`<button class="choice ${it.type==='multi'?'multi':''}" data-k="${k}"><span class="key">${k+1}</span><span>${it.choices[oi]}</span></button>`).join('')}</div>`;
+    qa.querySelectorAll('.choice').forEach(c=>c.onclick=()=>pick(+c.dataset.k));
+    putMascots(qa);
+  }
+  $('.l-body').scrollTop=0;
+}
+function pick(k){
+  if(L.state!=='idle')return; sfx.tap();
+  const it=L.cur.it, sel=L.cur.sel;
+  if(it.type==='multi'){sel.has(k)?sel.delete(k):sel.add(k)}else{sel.clear();sel.add(k)}
+  document.querySelectorAll('.choice').forEach(c=>c.classList.toggle('sel',sel.has(+c.dataset.k)));
+  $('#mainBtn').disabled = it.type==='multi'? sel.size!==it.need : sel.size===0;
+}
+function check(){
+  const {it,sel,order,id}=L.cur;
+  const picked=[...sel].map(k=>order[k]).sort();
+  const right=it.ans.slice().sort();
+  const ok=picked.length===right.length&&picked.every((v,i)=>v===right[i]);
+  document.querySelectorAll('.choice').forEach(c=>{
+    const oi=order[+c.dataset.k];c.disabled=true;c.classList.remove('sel');
+    if(it.ans.includes(oi)) c.classList.add('right');
+    else if(sel.has(+c.dataset.k)){c.classList.add('wrong','shake')}
+  });
+  const ansHTML=it.ans.map(i=>it.choices[i]).join('<br>');
+  resolve(ok,ansHTML);
+}
+function resolve(ok,ansHTML){
+  const {id,it}=L.cur;
+  const firstTry = L.first[id]===undefined;
+  if(firstTry) L.first[id]=ok;
+  L.state='feedback';
+  const m=document.querySelector('#qArea .mascot'); if(m){m.classList.remove('idle');m.classList.add(ok?'happy':'sad')}
+  if(ok){
+    sfx.ok(); L.combo++; L.maxCombo=Math.max(L.maxCombo,L.combo); L.cleared++;
+    L.xp += firstTry?10:5;
+    if(L.mode==='exam') L.examRight++;
+    if(it.type!=='match' && S.mistakes.includes(id) && (L.mode==='mistakes' || firstTry)) S.mistakes=S.mistakes.filter(x=>x!==id);
+  }else{
+    sfx.no(); L.combo=0;
+    if(it.type!=='match' && !S.mistakes.includes(id)) S.mistakes.push(id);
+    if(L.mode==='exam'){L.cleared++;L.examWrong.push(id)}
+    else { L.queue.push(id); if(L.hearts!==Infinity) L.hearts--; }
+  }
+  save(); updateHead();
+  const titles = ok? ['Nicely done!','Correct!','Great job!','You got it!','Amazing!'] : ['Not quite','Incorrect','So close'];
+  const title = titles[Math.random()*titles.length|0];
+  $('#foot').className='l-foot '+(ok?'ok':'no');
+  $('#fb').innerHTML=`<div class="fb-icon">${ok?ICON.okBig:ICON.noBig}</div><div>
+     <h3>${title}</h3>${(!ok&&ansHTML)?`<div class="ans">Correct answer:<br>${ansHTML}</div>`:''}<div class="why">${it.why}</div>${it.pg?`<div class="pgref">📄 Review: ${pgLabel(it)}</div>`:''}</div>`;
+  const btn=$('#mainBtn'); btn.classList.remove('hidden'); btn.disabled=false; btn.textContent= ok?'Continue':'Got it';
+  btn.focus({preventScroll:true});
+}
+function matchTap(t){
+  if(L.state!=='idle'||t.classList.contains('gone'))return;
+  sfx.tap();
+  const M=L.cur.match, side=t.dataset.side;
+  if(!M.pick || M.pick.dataset.side===side){
+    document.querySelectorAll('.tile.sel').forEach(x=>x.classList.remove('sel'));
+    t.classList.add('sel'); M.pick=t; return;
+  }
+  const a=M.pick,b=t; M.pick=null; a.classList.remove('sel');
+  if(a.dataset.i===b.dataset.i){
+    [a,b].forEach(x=>{x.classList.add('ok');x.disabled=true});
+    tone([[660+M.found*90,.1,'sine',.08]]);
+    setTimeout(()=>[a,b].forEach(x=>{x.classList.remove('ok');x.classList.add('gone')}),450);
+    M.found++;
+    if(M.found===L.cur.it.pairs.length) setTimeout(()=>{
+      const clean=M.mistakes===0;
+      L.first[L.cur.id]=clean; // accuracy credit only if flawless
+      resolveMatch(clean);
+    },500);
+  }else{
+    M.mistakes++; [a,b].forEach(x=>x.classList.add('bad')); sfx.no();
+    setTimeout(()=>[a,b].forEach(x=>x.classList.remove('bad')),450);
+  }
+}
+function resolveMatch(clean){
+  // match never costs hearts or re-queues; counts as cleared
+  const {id,it}=L.cur;
+  L.state='feedback'; L.cleared++; L.xp+=clean?10:5;
+  if(clean){L.combo++;L.maxCombo=Math.max(L.maxCombo,L.combo)}else L.combo=0;
+  sfx.ok(); updateHead();
+  $('#foot').className='l-foot ok';
+  $('#fb').innerHTML=`<div class="fb-icon">${ICON.okBig}</div><div><h3>${clean?'Flawless match!':'All matched!'}</h3>
+    ${clean?'':`<div class="ans">${L.cur.match.mistakes} wrong tap${L.cur.match.mistakes>1?'s':''} along the way</div>`}<div class="why">${it.why}</div>${it.pg?`<div class="pgref">📄 Review: ${pgLabel(it)}</div>`:''}</div>`;
+  const btn=$('#mainBtn'); btn.classList.remove('hidden'); btn.disabled=false; btn.textContent='Continue';
+}
+$('#mainBtn').onclick=()=>{
+  if(L.state==='learn'){ sfx.tap(); L.cleared++; updateHead(); next(); return; }
+  if(L.state==='idle'){ if(!$('#mainBtn').disabled) check(); }
+  else if(L.state==='feedback'){
+    if(L.hearts!==Infinity && L.hearts<=0) return outOfHearts();
+    next();
+  }
+};
+document.addEventListener('keydown',e=>{
+  if(!L||$('#lesson').classList.contains('hidden')||$('#overlay').innerHTML)return;
+  if(e.key==='Enter'){e.preventDefault();$('#mainBtn').click();return}
+  const n=parseInt(e.key,10);
+  if(n>=1&&n<=9&&L.state==='idle'&&L.cur.it.choices&&n<=L.cur.it.choices.length) pick(n-1);
+});
+$('#quitBtn').onclick=()=>{
+  const ov=$('#overlay');
+  ov.innerHTML=`<div class="modal-bg"><div class="modal" style="text-align:center">
+    <div style="width:110px;margin:0 auto 8px" data-mascot="sad"></div>
+    <h2>Wait, don't go!</h2><div class="msub">You'll lose your progress in this lesson.</div>
+    <button class="btn blue wide" id="stay">Keep learning</button>
+    <button class="btn ghost gray wide" id="leave" style="margin-top:12px">End session</button></div></div>`;
+  putMascots(ov);
+  ov.querySelector('#stay').onclick=()=>ov.innerHTML='';
+  ov.querySelector('#leave').onclick=()=>{ov.innerHTML='';exitLesson()};
+};
+function outOfHearts(){
+  const ov=$('#overlay');
+  ov.innerHTML=`<div class="modal-bg"><div class="modal" style="text-align:center">
+    <div style="width:110px;margin:0 auto 8px" data-mascot="sad"></div>
+    <h2>You ran out of hearts!</h2><div class="msub">Read the guidebook, or refill and keep grinding. Refills cut this lesson's XP in half.</div>
+    <button class="btn red wide" id="refill">${ICON.heart.replace('#FF4B4B','#fff')} Refill hearts</button>
+    <button class="btn ghost gray wide" id="giveup" style="margin-top:12px">Quit lesson</button></div></div>`;
+  putMascots(ov);
+  ov.querySelector('#refill').onclick=()=>{ov.innerHTML='';L.hearts=5;L.refilled=true;updateHead();next()};
+  ov.querySelector('#giveup').onclick=()=>{ov.innerHTML='';exitLesson()};
+}
+function exitLesson(){$('#lesson').classList.add('hidden');document.body.style.overflow='';L=null;renderHome()}
+
+function finish(){
+  const secs=Math.round((Date.now()-L.t0)/1000), mm=Math.floor(secs/60), ss=String(secs%60).padStart(2,'0');
+  const firstOk=Object.values(L.first).filter(v=>v===true).length;
+  const acc=L.graded?Math.round(firstOk/L.graded*100):100;
+  let xp=L.xp; const perfect=acc===100;
+  if(perfect && L.mode!=='exam') xp+=20;
+  if(L.refilled) xp=Math.round(xp/2);
+  S.xp+=xp; bumpStreak();
+  if(L.mode==='lesson') S.done[L.lesson.id]=Math.max(S.done[L.lesson.id]||0,acc);
+  if(L.mode==='exam'&&!L.quick) S.bestBoss=Math.max(S.bestBoss||0,L.examRight);
+  save(); sfx.win();
+  const isExam=L.mode==='exam';
+  const N=isExam?L.unique:REAL_IDS.length, R=CONFIG.realScore;
+  const head = isExam ? (L.examRight===N?`Perfect ${N}/${N}!`:(R!=null&&L.examRight>R)?`New record! You beat ${R}/${RT}!`:(R!=null&&L.examRight===R)?'Matched your real score!':'Boss defeated... kinda')
+              : perfect?'Perfect lesson!':'Lesson complete!';
+  const sub = isExam ? `You scored <b>${L.examRight}/${N}</b>.`+(R!=null?` Real quiz: ${R}/${RT}.`:'') : (perfect?'Zero mistakes. Bonus +20 XP.':`Max combo: ${L.maxCombo} in a row.`);
+  const ov=$('#overlay');
+  ov.innerHTML=`<div class="screen" id="win">
+    <div class="mascot-wrap" data-mascot="happy"></div>
+    <h2>${head}</h2><div class="sub">${sub}</div>
+    <div class="cards">
+      <div class="scard gold"><div class="t">Total XP</div><div class="v">${ICON.bolt2}${xp}</div></div>
+      <div class="scard green"><div class="t">${isExam?'Score':'Accuracy'}</div><div class="v">${ICON.target}${isExam?L.examRight+'/'+N:acc+'%'}</div></div>
+      <div class="scard blue"><div class="t">Time</div><div class="v">${ICON.clock}${mm}:${ss}</div></div>
+      <div class="scard orange"><div class="t">Streak</div><div class="v">${ICON.fire}${S.streak}</div></div>
+    </div>
+    ${isExam&&L.examWrong.length?`<div class="review-list">${L.examWrong.map(id=>{const it=ITEMS[id];return `<div class="ri"><b style="color:#8B4FB8">${pgLabel(it)}</b> · ${it.prompt}<br><span>✓ ${it.ans.map(i=>it.choices[i]).join(', ')}</span></div>`}).join('')}</div>`:''}
+    <div class="actions"><button class="btn wide" id="cont">Continue</button>
+    ${S.mistakes.length?`<button class="btn ghost wide" id="pm">Practice mistakes (${S.mistakes.length})</button>`:''}</div>
+  </div>`;
+  putMascots(ov);
+  const win=ov.querySelector('#win');
+  const cols=['#58CC02','#1CB0F6','#FFC800','#FF4B4B','#CE82FF','#FF9600'];
+  for(let i=0;i<70;i++){const c=document.createElement('div');c.className='confetti';c.style.left=Math.random()*100+'%';c.style.background=cols[i%cols.length];
+    c.style.animationDuration=(2+Math.random()*2.5)+'s';c.style.animationDelay=(Math.random()*.6)+'s';win.appendChild(c)}
+  ov.querySelector('#cont').onclick=()=>{ov.innerHTML='';exitLesson()};
+  const pm=ov.querySelector('#pm'); if(pm) pm.onclick=()=>{ov.innerHTML='';exitLesson();startLesson({mode:'mistakes',items:shuffle(S.mistakes)})};
+}
+
+renderStatic();
+renderHome();
+</script>
+</body>
+</html>
